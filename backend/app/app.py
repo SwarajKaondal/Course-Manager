@@ -19,7 +19,7 @@ mysql = MySQL(app)
 def hello_world():
     cur = mysql.connection.cursor()
     
-    cur.execute("SELECT * FROM USER_ROLE")
+    cur.execute("SELECT * FROM Person_ROLE")
     rows = cur.fetchall()
 
     cur.close()
