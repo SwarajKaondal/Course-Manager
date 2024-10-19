@@ -1,27 +1,33 @@
 from flask import Flask
 from flask import Flask,render_template, request, jsonify
-from flask_mysqldb import MySQL
+import mysql.connector
 from dotenv import load_dotenv
+from mysql.connector import errorcode
 import os
 
 load_dotenv()
 
 app = Flask(__name__)
- 
-app.config['MYSQL_HOST'] = os.getenv('MYSQL_HOST')
-app.config['MYSQL_USER'] = os.getenv('MYSQL_USER')
-app.config['MYSQL_PASSWORD'] = os.getenv('MYSQL_PASSWORD')
-app.config['MYSQL_DB'] = os.getenv('MYSQL_DB')
 
-mysql = MySQL(app)
+config = {
+  'user': os.getenv("MYSQL_USER"),
+  'password': os.getenv("MYSQL_PASSWORD"),
+  'host': os.getenv("MYSQL_HOST"),
+  'database': os.getenv("MYSQL_DATABASE"),
+  'raise_on_warnings': True
+}
 
 @app.route("/")
 def hello_world():
-    cur = mysql.connection.cursor()
-    
-    cur.execute("SELECT * FROM Person_ROLE")
-    rows = cur.fetchall()
+    cnx = mysql.connector.connect(**config)
 
-    cur.close()
+    if cnx and cnx.is_connected():
+        with cnx.cursor() as cursor:
+            cursor.execute("SELECT * FROM person_role")
+            rows = cursor.fetchall()
+            for row in rows:
+                print(row)
+    cnx.close()
+        
     
-    return jsonify(rows)
+    return 'Hello, World!'
