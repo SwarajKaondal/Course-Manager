@@ -42,7 +42,8 @@ CREATE TABLE Person (
             SUBSTRING(Last_name, 1, 2),
             DATE_FORMAT(Created_On, '%m%y')
         )
-    )
+    ),
+    CHECK (Email REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$')
 );
 
 CREATE TABLE Course (

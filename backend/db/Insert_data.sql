@@ -1,7 +1,7 @@
 -- Insert data into person_role
 INSERT INTO person_role (Role_ID, Role_name) VALUES
 (1, 'Admin'),
-(2, 'Instructor'),
+(2, 'Faculty'),
 (3, 'Student'),
 (4, 'Teaching Assistant');
 
