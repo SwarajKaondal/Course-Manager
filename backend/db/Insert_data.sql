@@ -42,10 +42,10 @@ INSERT INTO Section (Section_ID, Title, Section_number, Chapter_ID) VALUES
 
 -- Insert data into Content_Block
 INSERT INTO Content_Block (Content_BLK_ID, Hidden, Created_By, Sequence_number, Section_ID) VALUES
-(1, FALSE, 1, 1, 1),
-(2, FALSE, 1, 2, 3),
-(3, TRUE, 2, 1, 4),
-(4, FALSE, 3, 1, 2);
+(1, FALSE, 'JaDo0923', 1, 1),
+(2, FALSE, 'JaDo0923', 2, 3),
+(3, TRUE, 'JaDo0923', 1, 4),
+(4, FALSE, 'JaDo0923', 1, 2);
 
 -- Insert data into Image
 INSERT INTO Image (Image_ID, Path, Content_BLK_ID) VALUES
@@ -68,7 +68,7 @@ INSERT INTO Answer (Answer_ID, Answer_Text, Answer_Explanation, Correct, Activit
 (2, 'Combines rows from two or more tables', 'JOINs are used to combine rows.', TRUE, 2);
 
 -- Insert data into Active_Course
-INSERT INTO Active_Course (Course_ID, Unique_Token, Course_Capacity) VALUES
+INSERT INTO Active_Course (Course_ID, Token, Course_Capacity) VALUES
 ('C001', 'TOKEN123', 30),
 ('C002', 'TOKEN456', 25);
 
