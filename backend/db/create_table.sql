@@ -43,7 +43,7 @@ CREATE TABLE Person (
             DATE_FORMAT(Created_On, '%m%y')
         )
     ),
-    CHECK (Email REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$')
+    CONSTRAINT email_format CHECK (Email REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$')
 );
 
 CREATE TABLE Course (
@@ -68,10 +68,11 @@ CREATE TABLE Textbook (
 );
 
 CREATE TABLE Chapter (
-    Chapter_ID INT PRIMARY KEY,
+    Chapter_ID INT AUTO_INCREMENT PRIMARY KEY,
     Chapter_number CHAR(6) NOT NULL CHECK(Chapter_number REGEXP '^chap[0-9]{2}$'),
     Title VARCHAR(255) NOT NULL,
     Textbook_ID INT NOT NULL,
+    CONSTRAINT unique_chapter UNIQUE(Textbook_ID, Chapter_number),
     FOREIGN KEY (Textbook_ID) REFERENCES Textbook(Textbook_ID)
 		ON DELETE CASCADE
         ON UPDATE CASCADE
