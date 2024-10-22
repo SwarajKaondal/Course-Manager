@@ -1,23 +1,50 @@
 USE zybooks;
 
--- Return 0 if unsucessfull else return 1
-DROP FUNCTION IF EXISTS change_password;
+
+-- Procedure to login a user
+DROP PROCEDURE IF EXISTS person_login;
 DELIMITER //
-CREATE FUNCTION change_password(user_id VARCHAR(50), old_password VARCHAR(255), new_password VARCHAR(255))
+CREATE PROCEDURE person_login(IN user_id VARCHAR(255), IN password VARCHAR(255))
+BEGIN
+	DECLARE user_count INT;
+	IF NOT EXISTS (SELECT 1 FROM Person P WHERE P.User_ID = user_id AND P.Password = password) THEN
+        -- Throw an error if the user_id does not exist
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'The username or password is incorrect', MYSQL_ERRNO = 401;
+    ELSE
+		SELECT P.User_ID, P.First_name, P.Last_name, P.email, P.Role_ID
+        FROM Person P
+        Where P.User_ID = user_id
+        AND P.Password = password;
+	END IF;    
+END; //
+
+DELIMITER ;
+
+-- Return 0 if unsucessfull else return 1
+DROP FUNCTION IF EXISTS person_change_password;
+DELIMITER //
+CREATE FUNCTION person_change_password(user_id VARCHAR(50), old_password VARCHAR(255), new_password VARCHAR(255))
 	RETURNS INT
 	DETERMINISTIC
 BEGIN
+
+	IF NOT EXISTS (SELECT 1 FROM Person P WHERE P.User_ID = user_id AND P.Password = old_password) THEN
+		SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'The username or password is incorrect', MYSQL_ERRNO = 401;
+        RETURN 0;
+    END IF;
+
 	UPDATE Person P
     SET P.password = new_password
     WHERE P.User_ID = user_id
     AND P.Password = old_password;
     
-    IF ROW_COUNT() > 0 THEN
-        RETURN 1; -- Success
-    ELSE
-        RETURN 0; -- Failure (either user_id or old_password is incorrect)
-    END IF;
+    RETURN 1;
 END;
 //
 DELIMITER ;
+
+
+
 

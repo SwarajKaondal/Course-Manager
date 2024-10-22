@@ -1,6 +1,5 @@
 from flask import Blueprint, jsonify
-from db import connection_pool
-from flask import request, abort
+from db import execute_query
 import mysql
 
 admin = Blueprint('admin', __name__, url_prefix='/admin')
@@ -88,35 +87,6 @@ def add_eval_course():
     return execute_query(ADD_EVAL_COURSE, 
                   ['role', 'course_id', 'course_name', 'faculty', 'start_date', 'end_date'],
                   "Evaluation course added successfully")
-
-
-def execute_query(query, params, success_msg):
-    data = request.get_json()
-
-    param_vals = ()
-    for param in params:
-        val = data.get(param)
-        if not val:
-            abort(400, description="Missing required fields")
-        param_vals += (val,)
-    
-    conn = connection_pool.get_connection()
-    cursor = conn.cursor()
-    try:
-        cursor.execute(query, param_vals)
-        result = cursor.fetchone()
-
-        if result and result[0] == 1:
-            conn.commit();
-            return jsonify({'message': f'{success_msg}'}), 201
-    
-    except mysql.connector.Error as err:
-        abort(500, description=f"Database error: {str(err)}")
-    except Exception as err:
-        abort(500, description=f"Error: {str(err)}")
-    finally:
-        cursor.close()
-        conn.close()
 
     
 

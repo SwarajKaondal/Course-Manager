@@ -1,8 +1,10 @@
 from flask import Blueprint, jsonify
-from db import connection_pool
+from db import call_procedure, execute_query
 from flask import request, abort
 
 person = Blueprint('person', __name__, url_prefix='/person')
+
+CHANGE_PASSWORD = "SELECT person_change_password(%s, %s, %s)"
 
 
 """
@@ -10,27 +12,12 @@ person = Blueprint('person', __name__, url_prefix='/person')
     {
         "user_id": "JohnDoe123
         "password": "Password"
-        "role_id": 1
     }
 """
 @person.route('/login', methods=['POST'])
 def handle_login():
-    data = request.get_json()
-    user_id = data['user_id']
-    password = data['password']
-    role_id = data['role_id']
-    
-    query = "SELECT * FROM person WHERE User_ID = %s AND Password = %s AND Role_ID = %s"
-    
-    conn = connection_pool.get_connection()
-    cursor = conn.cursor()
-    cursor.execute(query, (user_id, password, role_id))
-    result = cursor.fetchone()
-    
-    if result:
-        return jsonify({'message': 'Login Succesful'})
-    else:
-        abort(401, description=jsonify({'message': 'Login Failed'}))
+    result = call_procedure('person_login', ['user_id', 'password'])
+    return jsonify(result), 200
 
 """
     Input:
@@ -42,29 +29,8 @@ def handle_login():
     }
 """
 @person.route('/password', methods=['POST'])
-def handle_password_change():    
+def handle_password_change():
     data = request.get_json()
-    user_id = data['user_id']
-    old_password = data['old_password']
-    new_password = data['new_password']
-    confirm_password = data['confirm_password']
-    
-    if(new_password != confirm_password):
-        return jsonify({'message': 'Passwords do not match'}), 
-    
-    check_password_query = "SELECT Password FROM person WHERE User_ID = %s"
-    
-    conn = connection_pool.get_connection();
-    
-    cursor = conn.cursor()
-    cursor.execute(check_password_query, (user_id,))
-    result = cursor.fetchone()
-    
-    if result[0] != old_password:
-        return jsonify({'message': 'Old password is incorrect'})
-    
-    update_password_query = "UPDATE person SET Password = %s WHERE User_ID = %s"
-    
-    cursor.execute(update_password_query, (new_password, user_id))
-    
-    return jsonify({'message': 'Success'})
+    if data['new_password'] != data['confirm_password']:
+        abort(400, description="New password and confirm password do not match.")    
+    return execute_query(CHANGE_PASSWORD, ['user_id', 'old_password', 'new_password'], "Password changed successfully")

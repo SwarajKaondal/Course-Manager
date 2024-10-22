@@ -1,18 +1,5 @@
 use zybooks;
 
--- Procedure to get courses for a faculty
-DROP PROCEDURE IF EXISTS faculty_get_courses;
-DELIMITER //
-CREATE PROCEDURE faculty_get_courses(IN user_id VARCHAR(255))
-BEGIN
-	SELECT Course_ID, Title
-    FROM Course
-    WHERE Faculty = user_id;
-END;
-//
-
-DELIMITER ;
-
 -- Procedure to view worklist
 DROP PROCEDURE IF EXISTS faculty_view_worklist;
 DELIMITER //
@@ -59,16 +46,13 @@ DROP PROCEDURE IF EXISTS faculty_approve_student;
 DELIMITER //
 CREATE PROCEDURE faculty_approve_student(IN course_id VARCHAR(255), IN student_id VARCHAR(255))
 BEGIN
-	DECLARE record_exist INT;
 	START TRANSACTION;
     
-    SELECT COUNT(*) 
-    INTO record_exist 
-    FROM Waitlist W
-    WHERE W.Course_ID = course_id
-    AND W.Student_ID = student_id;
-    
-    IF record_exist = 1 THEN
+    IF NOT EXISTS (SELECT 1 FROM Waitlist W WHERE W.Course_ID = course_id AND W.Student_ID = student_id) THEN
+		SIGNAL SQLSTATE '45000'
+		 SET MESSAGE_TEXT = 'Enrollment failed', MYSQL_ERRNO = 2001;
+         ROLLBACK;
+	END IF;
 		DELETE FROM Waitlist W
 		WHERE W.Course_ID = course_id
 		AND W.Student_ID = student_id;
@@ -78,9 +62,8 @@ BEGIN
         );
         
         COMMIT;
-	ELSE
-		ROLLBACK;
-	END IF;
+	
+	
 END; //
 DELIMITER ;
 
@@ -100,5 +83,21 @@ END; //
 DELIMITER ;
 
 
+-- Procedure to get courses for a faculty
+DROP PROCEDURE IF EXISTS faculty_get_courses;
+DELIMITER //
+CREATE PROCEDURE faculty_get_courses(IN user_id VARCHAR(255))
+BEGIN
+	IF NOT EXISTS (SELECT 1 FROM Person P WHERE P.User_ID = user_id) THEN
+        -- Throw an error if the user_id does not exist
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'The person does not exist', MYSQL_ERRNO = 1001;
+    ELSE
+        -- If the user_id exists, select the courses
+        SELECT Course_ID, Title
+        FROM Course
+        WHERE Faculty = user_id;
+    END IF;
+END; //
 
-
+DELIMITER ;
