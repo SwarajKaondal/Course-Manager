@@ -1,25 +1,5 @@
 USE zybooks;
 
--- Remove login from this
--- 1. Login, returns number of user that match the input parameters. Invalid user if 0.
-DELIMITER #
-DROP FUNCTION IF EXISTS login#
-CREATE FUNCTION login(role_id INT, user_id VARCHAR(50), user_password VARCHAR(255))
-	RETURNS INT
-	READS SQL DATA
-BEGIN
-	DECLARE user_count INT;
-    
-    SELECT count(*) INTO user_count FROM PERSON as P
-    WHERE P.Role_ID = role_id 
-    AND P.User_ID = user_id
-    AND P.password = user_password;
-    
-    RETURN user_count;
-END#
--- select login(2, 'AlJo0923', 'password123');
--- ----------------------------------------------------------
-
 -- 2. Create Faculty when logged in as Admin, returns number of user created.
 DELIMITER #
 DROP FUNCTION IF EXISTS create_faculty#
