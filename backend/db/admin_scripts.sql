@@ -267,3 +267,14 @@ BEGIN
     
 END#
 -- ----------------------------------------------------------
+
+-- 10. hide_content
+DELIMITER #
+DROP FUNCTION IF EXISTS hide_content#
+CREATE FUNCTION hide_content(content_blk_id INT)
+	RETURNS INT
+    DETERMINISTIC
+BEGIN
+  UPDATE Content_Block cont_blk SET Hidden = TRUE WHERE cont_blk.Content_BLK_ID = content_blk_id;
+
+END#
