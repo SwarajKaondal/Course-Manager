@@ -12,9 +12,10 @@ BEGIN
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = 'The username or password is incorrect', MYSQL_ERRNO = 401;
     ELSE
-		SELECT P.User_ID, P.First_name, P.Last_name, P.email, P.Role_ID
-        FROM Person P
-        Where P.User_ID = user_id
+		SELECT P.User_ID, P.First_name, P.Last_name, P.email, P.Role_ID, R.Role_name
+        FROM Person P, Person_Role R
+        Where P.Role_ID = R.Role_ID
+        AND P.User_ID = user_id
         AND P.Password = password;
 	END IF;    
 END; //

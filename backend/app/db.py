@@ -29,7 +29,6 @@ def   call_procedure(procedure, params):
     conn = connection_pool.get_connection()
     cursor = conn.cursor()
     try:
-        print(params)
         cursor.callproc(procedure, params)
         result = []
         for res in cursor.stored_results():
@@ -52,7 +51,7 @@ def execute_query(query, params, success_msg):
         if not val:
             abort(400, description="Missing required fields")
         param_vals += (val,)
-    
+
     conn = connection_pool.get_connection()
     cursor = conn.cursor()
     try:
@@ -60,9 +59,9 @@ def execute_query(query, params, success_msg):
         result = cursor.fetchone()
 
         if result and result[0] == 1:
-            conn.commit();
+            conn.commit()
             return jsonify({'message': f'{success_msg}'}), 201
-    
+
     except mysql.connector.Error as err:
         abort(500, description=f"Database error: {str(err)}")
     except Exception as err:
