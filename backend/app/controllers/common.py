@@ -78,9 +78,10 @@ def get_courses():
 
                             # Fetch answers associated with the activity
                             answers = execute_raw_sql(GET_ANSWERS, (activity.activity_id,))
-                            for answer in answers:
-                                answer = Answer(*answer)
-                                activity.answers.append(answer)
+                            activity.answer1 = Answer(*answers[0])
+                            activity.answer2 = Answer(*answers[1])
+                            activity.answer3 = Answer(*answers[2])
+                            activity.answer4 = Answer(*answers[3])
 
                             content_block.activity = activity
 

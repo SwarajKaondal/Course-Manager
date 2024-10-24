@@ -70,7 +70,10 @@ class Activity:
     def __init__(self, activity_id: int, question: str):
         self.activity_id = activity_id
         self.question = question
-        self.answers = []
+        self.answer1 = None
+        self.answer2 = None
+        self.answer3 = None
+        self.answer4 = None
 
     def to_dict(self):
         return {
