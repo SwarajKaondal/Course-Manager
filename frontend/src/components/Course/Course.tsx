@@ -1,4 +1,4 @@
-import { Course } from "../../models/models";
+import { Course, Textbook } from "../../models/models";
 import { styled } from "@mui/material/styles";
 import { format } from "date-fns";
 import AddIcon from "@mui/icons-material/Add";
@@ -34,7 +34,7 @@ export const CourseComponent = ({
   viewOnly,
 }: {
   course: Course;
-  selectTextbook: React.Dispatch<React.SetStateAction<Textbook | undefined>>;
+  selectTextbook: React.Dispatch<React.SetStateAction<Number | undefined>>;
   refreshCourses: () => void;
   viewOnly: Boolean;
 }) => {
