@@ -11,42 +11,170 @@ import { Textbook } from "../../models/models";
 import AddIcon from "@mui/icons-material/Add";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { ActivityComponent } from "../Activity/Activity";
+import { PostRequest } from "../../utils/ApiManager";
+import { useAuth } from "../../provider/AuthProvider";
+import { useState } from "react";
+import InputDialog from "./InputDialog";
+import ActivityDialog from "../Activity/ActivityDialog";
+
+export interface ActivityFormData {
+  question: string;
+  ans_txt_1: string;
+  ans_explain_1: string;
+  correct_1: boolean;
+  ans_txt_2: string;
+  ans_explain_2: string;
+  correct_2: boolean;
+  ans_txt_3: string;
+  ans_explain_3: string;
+  correct_3: boolean;
+  ans_txt_4: string;
+  ans_explain_4: string;
+  correct_4: boolean;
+}
 
 export const TextbookComponent = ({
   textbook,
+  refreshTextbooks,
   viewOnly,
 }: {
   textbook: Textbook;
+  refreshTextbooks: () => void;
   viewOnly: Boolean;
 }) => {
-  const handleAddChapter = () => {
-    // Logic for adding a new section
-    alert("Add Section clicked!");
+  const auth = useAuth();
+  const [inputDialog, setInputDialog] = useState<boolean>(false);
+  const [dialogFields, setDialogFields] = useState<string[]>([]);
+  const [contentType, setContentType] = useState<String>("");
+
+  const [activityDialog, setActivityDialog] = useState<boolean>(false);
+  const [activityContentBlkId, setActivityContentBlkId] = useState<
+    number | undefined
+  >();
+
+  const handleAddChapter = async (title: String, chapter_number: number) => {
+    const response = await PostRequest("/admin/add_chapter", {
+      role: auth.user?.role,
+      title: title,
+      chapter_number: chapter_number,
+      textbook_id: textbook.textbook_id,
+    });
+    if (response.ok) {
+      refreshTextbooks();
+    }
   };
 
-  const handleAddSection = () => {
-    // Logic for adding a new section
-    alert("Add Section clicked!");
+  const handleAddSection = async (
+    title: String,
+    section_number: number,
+    chapter_id: number
+  ) => {
+    const response = await PostRequest("/admin/add_section", {
+      role: auth.user?.role,
+      title: title,
+      section_number: section_number,
+      chapter_id: chapter_id,
+    });
+    if (response.ok) {
+      refreshTextbooks();
+    }
   };
 
-  const handleAddContent = () => {
-    // Logic for adding a new section
-    alert("Add Section clicked!");
+  const handleAddContentBlock = async (
+    sequence_number: number,
+    section_id: number
+  ) => {
+    const response = await PostRequest("/admin/add_content_block", {
+      role: auth.user?.role,
+      user_id: auth.user?.user_id,
+      sequence_number: sequence_number,
+      section_id: section_id,
+    });
+    if (response.ok) {
+      refreshTextbooks();
+    }
   };
 
-  const handleAddTextBlock = () => {
-    // Logic for adding a new section
-    alert("Add Section clicked!");
+  const handleAddTextBlock = async (text: String, content_block_id: number) => {
+    const response = await PostRequest("/admin/add_text", {
+      role: auth.user?.role,
+      text: text,
+      content_block_id: content_block_id,
+    });
+    if (response.ok) {
+      console.log("Cool");
+      refreshTextbooks();
+    }
   };
 
-  const handleAddImage = () => {
-    // Logic for adding a new section
-    alert("Add Section clicked!");
+  const handleAddImage = async (img_path: String, content_block_id: number) => {
+    const response = await PostRequest("/admin/add_picture", {
+      role: auth.user?.role,
+      img_path: img_path,
+      content_block_id: content_block_id,
+    });
+    if (response.ok) {
+      refreshTextbooks();
+    }
   };
 
-  const handleAddActivity = () => {
-    // Logic for adding a new section
-    alert("Add Section clicked!");
+  const handleAddActivity = async (formData: ActivityFormData) => {
+    const response = await PostRequest("/admin/add_activity", {
+      ...formData,
+      role: auth.user?.role,
+      content_blk_id: activityContentBlkId,
+    });
+    if (response.ok) {
+      refreshTextbooks();
+    }
+  };
+
+  const handleSubmit = (values: { [key: string]: string }) => {
+    switch (contentType) {
+      case "chapter":
+        handleAddChapter(values["Title"], Number(values["Chapter Number"]));
+        break;
+
+      case "section":
+        handleAddSection(
+          values["title"],
+          Number(values["Section Number"]),
+          Number(values["Chapter Id"])
+        );
+        break;
+
+      case "content_block":
+        handleAddContentBlock(
+          Number(values["Section Number"]),
+          Number(values["Section Id"])
+        );
+        break;
+
+      case "text":
+        handleAddTextBlock(values["Text"], Number(values["Content Block Id"]));
+        break;
+
+      case "picture":
+        handleAddImage(
+          values["Image path"],
+          Number(values["content_block_id"])
+        );
+        break;
+
+      default:
+        console.error("Unknown contentType:", contentType);
+    }
+  };
+
+  const handleAddContent = (content: String, fields: string[]) => {
+    setContentType(content);
+    setDialogFields(fields);
+    setInputDialog(true);
+  };
+
+  const handleCreateActivity = (content_blk_id: number) => {
+    setActivityContentBlkId(content_blk_id);
+    setActivityDialog(true);
   };
 
   return (
@@ -59,13 +187,26 @@ export const TextbookComponent = ({
           variant="outlined"
           startIcon={<AddIcon />}
           color="primary"
-          onClick={handleAddChapter}
+          onClick={() =>
+            handleAddContent("chapter", ["Title", "Chapter Number"])
+          }
           sx={{ display: viewOnly ? "none" : "" }}
         >
           Add Chapter
         </Button>
       </Box>
       <Divider />
+      <InputDialog
+        fieldNames={dialogFields}
+        open={inputDialog}
+        onClose={handleSubmit}
+        onCancel={() => setInputDialog(false)}
+      />
+      <ActivityDialog
+        open={activityDialog}
+        onSubmit={handleAddActivity}
+        onClose={() => setActivityDialog(false)}
+      />
       {textbook.chapters &&
         textbook.chapters.length > 0 &&
         textbook.chapters.map((chapter, chapter_idx) => (
@@ -90,7 +231,12 @@ export const TextbookComponent = ({
                   variant="outlined"
                   startIcon={<AddIcon />}
                   color="primary"
-                  onClick={handleAddSection}
+                  onClick={() =>
+                    handleAddContent("section", [
+                      "Section Number",
+                      "Chapter Id",
+                    ])
+                  }
                   sx={{ display: viewOnly ? "none" : "" }}
                 >
                   Add Section
@@ -124,7 +270,12 @@ export const TextbookComponent = ({
                           variant="outlined"
                           startIcon={<AddIcon />}
                           color="primary"
-                          onClick={handleAddContent}
+                          onClick={() =>
+                            handleAddContent("content_block", [
+                              "Section Number",
+                              "Section Id",
+                            ])
+                          }
                           sx={{ display: viewOnly ? "none" : "" }}
                         >
                           Add Content
@@ -159,7 +310,12 @@ export const TextbookComponent = ({
                                   variant="outlined"
                                   startIcon={<AddIcon />}
                                   color="primary"
-                                  onClick={handleAddTextBlock}
+                                  onClick={() =>
+                                    handleAddContent("text", [
+                                      "Text",
+                                      "Content Block Id",
+                                    ])
+                                  }
                                   sx={{
                                     display:
                                       content.text_block !== undefined ||
@@ -174,7 +330,12 @@ export const TextbookComponent = ({
                                   variant="outlined"
                                   startIcon={<AddIcon />}
                                   color="primary"
-                                  onClick={handleAddImage}
+                                  onClick={() =>
+                                    handleAddContent("picture", [
+                                      "Image path",
+                                      "Content Block Id",
+                                    ])
+                                  }
                                   sx={{
                                     display:
                                       content.image !== undefined || viewOnly
@@ -188,7 +349,11 @@ export const TextbookComponent = ({
                                   variant="outlined"
                                   startIcon={<AddIcon />}
                                   color="primary"
-                                  onClick={handleAddActivity}
+                                  onClick={() =>
+                                    handleCreateActivity(
+                                      content.content_block_id
+                                    )
+                                  }
                                   sx={{
                                     display:
                                       content.activity !== undefined || viewOnly
