@@ -16,6 +16,22 @@ export type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
+const getRedirectPath = (role_name: String) => {
+    console.log(role_name);
+    switch (role_name) {
+        case "Admin":
+            return "/admin";
+        case "Faculty":
+            return "/faculty";
+        case "Ta":
+            return "/ta";
+        case "Student":
+            return "/student";
+        default:
+            return "/";
+    }
+}
+
 export const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
     const [user, setUser] = useLocalStorage<User | null>("user", null);
     const navigate = useNavigate();
@@ -23,7 +39,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
     // Call this function when you want to authenticate the user
     const login = async (data: User): Promise<void> => {
         setUser(data);
-        navigate("/admin");
+        const redirectPath = getRedirectPath(data.role_name);
+        navigate(redirectPath, {replace: true});
     };
 
     // Call this function to sign out the logged-in user

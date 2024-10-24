@@ -89,3 +89,8 @@ export interface Waitlist {
   };
   students: User;
 }
+
+export interface Role {
+  role: number;
+  role_name: String;
+}

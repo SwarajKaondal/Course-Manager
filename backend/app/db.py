@@ -24,8 +24,9 @@ def get_params(needed_params):
         param_vals.append(val)
     return tuple(param_vals)
 
-def   call_procedure(procedure, params):
-    params = get_params(params)  # Get parameters from the request
+def call_procedure(procedure, params):
+    if params:
+        params = get_params(params)  # Get parameters from the request
     conn = connection_pool.get_connection()
     cursor = conn.cursor()
     try:
@@ -41,6 +42,38 @@ def   call_procedure(procedure, params):
     finally:
       cursor.close()
       conn.close()
+
+def call_procedure_with_params(procedure, params):
+    conn = connection_pool.get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.callproc(procedure, params)
+        result = []
+        for res in cursor.stored_results():
+            result.append(res.fetchall())
+        return result
+    except mysql.connector.Error as err:
+      abort(400, description=f"Database error: {str(err)}")
+    except Exception as err:
+      abort(400, description=f"Error: {str(err)}")
+    finally:
+      cursor.close()
+      conn.close()
+
+def execute_raw_sql(query, params):
+    conn = connection_pool.get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(query, params)
+        result = cursor.fetchall()
+        return result
+    except mysql.connector.Error as err:
+        abort(400, description=f"Database error: {str(err)}")
+    except Exception as err:
+        abort(400, description=f"Error: {str(err)}")
+    finally:
+        cursor.close()
+        conn.close()
 
 def execute_query(query, params, success_msg):
     data = request.get_json()
