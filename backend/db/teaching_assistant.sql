@@ -1,6 +1,6 @@
 -- hide_content_block
 DELIMITER #
-DROP FUNCTION IF EXISTS hide_content#
+DROP FUNCTION IF EXISTS ta_hide_content#
 CREATE FUNCTION hide_content(content_blk_id INT)
 	RETURNS INT
     DETERMINISTIC
@@ -11,7 +11,7 @@ END#
 
 -- delete_content_block
 DELIMITER #
-DROP FUNCTION IF EXISTS delete_content#
+DROP FUNCTION IF EXISTS ta_delete_content#
 CREATE FUNCTION delete_content(content_blk_id INT)
 	RETURNS INT
     DETERMINISTIC
