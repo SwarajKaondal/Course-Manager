@@ -20,15 +20,22 @@ import {
   TextField,
   DialogContent,
   DialogActions,
+  Link,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useState } from "react";
+import { PostRequest } from "../../utils/ApiManager";
+import { useAuth } from "../../provider/AuthProvider";
 
 export const CourseComponent = ({
   course,
+  selectTextbook,
+  refreshCourses,
   viewOnly,
 }: {
   course: Course;
+  selectTextbook: React.Dispatch<React.SetStateAction<Textbook | undefined>>;
+  refreshCourses: () => void;
   viewOnly: Boolean;
 }) => {
   const [open, setOpen] = useState(false);
@@ -42,9 +49,18 @@ export const CourseComponent = ({
     setOpen(false);
   };
 
-  const handleSave = () => {
+  const auth = useAuth();
+
+  const handleSave = async () => {
     console.log("Textbook Name:", textbookName);
-    // Add your save logic here (e.g., API call)
+    const response = await PostRequest("/admin/create_textbook", {
+      role: auth.user?.role,
+      title: textbookName,
+      course_id: course.course_id,
+    });
+    if (response.ok) {
+      refreshCourses();
+    }
     setOpen(false);
   };
 
@@ -125,7 +141,18 @@ export const CourseComponent = ({
               <AccordionDetails>
                 <ol>
                   {course.textbooks.map((textbook, i) => (
-                    <li key={i}>{textbook.title}</li>
+                    <li key={i}>
+                      <Link
+                        component="button"
+                        variant="body2"
+                        onClick={() => {
+                          selectTextbook(textbook.textbook_id);
+                        }}
+                        sx={{ cursor: "pointer" }}
+                      >
+                        {textbook.title}
+                      </Link>
+                    </li>
                   ))}
                 </ol>
               </AccordionDetails>
