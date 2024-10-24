@@ -1,0 +1,106 @@
+from flask import Blueprint, jsonify, request
+from db import call_procedure, execute_raw_sql
+from model.model import Role, Textbook, Course, Chapter, Section, ContentBlock, Image, TextBlock, Activity, Answer, Faculty
+
+common = Blueprint('common', __name__, url_prefix='/common')
+
+
+GET_COURSES = "SELECT C.COURSE_ID, C.TITLE, C.FACULTY, C.START_DATE, C.END_DATE, C.TYPE, AC.TOKEN, AC.Course_Capacity FROM COURSE C LEFT JOIN Active_Course AC ON C.Course_ID = AC.Course_ID WHERE Faculty = %s"
+GET_TEXTBOOK = "SELECT Textbook_ID, Title FROM Textbook WHERE Course_ID = %s"
+GET_CHAPTER = "SELECT Chapter_ID, Chapter_Number, Title FROM Chapter WHERE Textbook_ID = %s"
+GET_SECTION = "SELECT Section_ID, Title, Section_Number FROM Section WHERE Chapter_ID = %s"
+GET_CONTENT_BLOCK = "SELECT Content_BLK_ID, HIDDEN, Created_By, Sequence_Number FROM Content_Block WHERE Section_ID = %s"
+GET_IMAGE = "SELECT Image_ID, Path FROM Image WHERE Content_BLK_ID = %s"
+GET_TEXT_BLOCK = "SELECT Text_Blk_ID, Text FROM Text_Block WHERE Content_BLK_ID = %s"
+GET_ACTIVIY = "SELECT Activity_ID, Question FROM Activity WHERE Content_BLK_ID = %s"
+GET_ANSWERS = "SELECT Answer_ID, Answer_Text, Answer_Explanation, Correct FROM Answer WHERE Activity_ID = %s"
+GET_FACULTY = "SELECT P.User_ID, P.First_Name, P.Last_Name, P.Email, R.Role_name, P.Role_ID FROM Person P, Person_Role R WHERE user_id = %s AND P.Role_ID = R.Role_ID"
+
+
+@common.route('/roles', methods=['GET'])
+def get_roles():
+    result = call_procedure('fetch_roles', [])
+    roles = []
+    for row in result[0]:
+        roles.append(Role(*row).to_dict())
+    return jsonify(roles), 200
+
+
+@common.route('/textbooks', methods=['POST'])
+def get_courses():
+    data = request.get_json()
+    course_list = []
+
+    # Fetch courses for the user
+    courses = execute_raw_sql(GET_COURSES, (data['user_id'],))
+    for course in courses:
+        c = Course(*course)
+
+        faculty = execute_raw_sql(GET_FACULTY, (data['user_id'],))
+        c.faculty = Faculty(*faculty[0]) if faculty else None
+        
+        # Fetch textbooks related to the course
+        textbooks = execute_raw_sql(GET_TEXTBOOK, (c.course_id,))
+        for textbook in textbooks:
+            textbook = Textbook(*textbook)
+
+            # Fetch chapters in the textbook
+            chapters = execute_raw_sql(GET_CHAPTER, (textbook.textbook_id,))
+            for chapter in chapters:
+                chapter = Chapter(*chapter)
+
+                # Fetch sections in the chapter
+                sections = execute_raw_sql(GET_SECTION, (chapter.chapter_id,))
+                for section in sections:
+                    section = Section(*section)
+
+                    # Fetch content blocks in the section
+                    content_blocks = execute_raw_sql(GET_CONTENT_BLOCK, (section.section_id,))
+                    for content_block in content_blocks:
+                        content_block = ContentBlock(*content_block)
+
+                        # Fetch images associated with the content block
+                        images = execute_raw_sql(GET_IMAGE, (content_block.content_blk_id,))
+                        for image in images:
+                            image = Image(*image)
+                            content_block.image = image
+
+                        # Fetch text blocks associated with the content block
+                        text_blocks = execute_raw_sql(GET_TEXT_BLOCK, (content_block.content_blk_id,))
+                        for text_block in text_blocks:
+                            text_block = TextBlock(*text_block)
+                            content_block.text_block = text_block
+
+                        # Fetch activities associated with the content block
+                        activities = execute_raw_sql(GET_ACTIVIY, (content_block.content_blk_id,))
+                        for activity in activities:
+                            activity = Activity(*activity)
+
+                            # Fetch answers associated with the activity
+                            answers = execute_raw_sql(GET_ANSWERS, (activity.activity_id,))
+                            activity.answer1 = Answer(*answers[0])
+                            activity.answer2 = Answer(*answers[1])
+                            activity.answer3 = Answer(*answers[2])
+                            activity.answer4 = Answer(*answers[3])
+
+                            content_block.activity = activity
+
+                        # Append content blocks to the section
+                        section.content_blocks.append(content_block)
+
+                    # Append sections to the chapter
+                    chapter.sections.append(section)
+
+                # Append chapters to the textbook
+                textbook.chapters.append(chapter)
+
+            # Append textbooks to the course
+            c.textbooks.append(textbook)
+
+        # Add course to the final course list
+        course_list.append(c.to_dict())
+
+    # Output the course list for debugging
+    print(course_list)
+
+    return jsonify(course_list), 200

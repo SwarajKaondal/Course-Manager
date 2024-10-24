@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify
 from flask_cors import cross_origin
 from db import call_procedure, execute_query
 from flask import request, abort
-from model.user import User
+from model.model import User
 
 person = Blueprint('person', __name__, url_prefix='/person')
 

@@ -87,6 +87,3 @@ def add_eval_course():
                   ['role', 'course_id', 'course_name', 'faculty', 'start_date', 'end_date'],
                   "Evaluation course added successfully")
 
-
-
-

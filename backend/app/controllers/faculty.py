@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify
 from db import call_procedure
-import mysql.connector
+from model.model import CourseList
 
 faculty = Blueprint('faculty', __name__, url_prefix='/faculty')
 
@@ -22,4 +22,8 @@ def approve_waitlist():
 @faculty.route('/courses', methods=['POST'])
 def get_courses():
     result = call_procedure('faculty_get_courses', ['user_id'])
-    return jsonify(result), 200
+    course_list = []
+    for row in result[0]:
+        print(*row)
+        course_list.append(CourseList(*row).to_dict())
+    return jsonify(course_list), 200
