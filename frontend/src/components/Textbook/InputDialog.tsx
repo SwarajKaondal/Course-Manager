@@ -33,6 +33,7 @@ const InputDialog: React.FC<InputDialogProps> = ({
 
   const handleSubmit = () => {
     onClose(values);
+    onCancel();
   };
 
   const handleCancel = () => {

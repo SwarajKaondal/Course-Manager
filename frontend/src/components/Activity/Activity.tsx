@@ -14,6 +14,8 @@ export const ActivityComponent = ({ activity }: { activity: Activity }) => {
   const [submitted, setSubmitted] = useState<boolean>(false);
   const [explanation, setExplanation] = useState<string | null>(null);
 
+  console.log(activity);
+
   const handleAnswerChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedAnswer(Number(event.target.value));
     setExplanation(null);

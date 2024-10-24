@@ -162,7 +162,7 @@ BEGIN
 	SELECT role_id INTO student_role_id FROM Person_Role WHERE Role_name = 'Student';
     
 	IF user_role_id != student_role_id THEN
-		INSERT INTO Text_Block(Path, Content_BLK_ID) VALUES
+		INSERT INTO Image(Path, Content_BLK_ID) VALUES
 			(image_path, content_blk_id);
 		RETURN 1;
     ELSE

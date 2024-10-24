@@ -13,7 +13,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { ActivityComponent } from "../Activity/Activity";
 import { PostRequest } from "../../utils/ApiManager";
 import { useAuth } from "../../provider/AuthProvider";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import InputDialog from "./InputDialog";
 import ActivityDialog from "../Activity/ActivityDialog";
 
@@ -46,11 +46,15 @@ export const TextbookComponent = ({
   const [inputDialog, setInputDialog] = useState<boolean>(false);
   const [dialogFields, setDialogFields] = useState<string[]>([]);
   const [contentType, setContentType] = useState<String>("");
+  const [extraFields, setExtraFields] = useState<{ [key: string]: string }>({});
 
   const [activityDialog, setActivityDialog] = useState<boolean>(false);
   const [activityContentBlkId, setActivityContentBlkId] = useState<
     number | undefined
   >();
+
+  useEffect(() => {}, [textbook]);
+  console.log(textbook);
 
   const handleAddChapter = async (title: String, chapter_number: number) => {
     const response = await PostRequest("/admin/add_chapter", {
@@ -98,8 +102,8 @@ export const TextbookComponent = ({
   const handleAddTextBlock = async (text: String, content_block_id: number) => {
     const response = await PostRequest("/admin/add_text", {
       role: auth.user?.role,
-      text: text,
-      content_block_id: content_block_id,
+      text_str: text,
+      content_blk_id: content_block_id,
     });
     if (response.ok) {
       console.log("Cool");
@@ -110,8 +114,8 @@ export const TextbookComponent = ({
   const handleAddImage = async (img_path: String, content_block_id: number) => {
     const response = await PostRequest("/admin/add_picture", {
       role: auth.user?.role,
-      img_path: img_path,
-      content_block_id: content_block_id,
+      image_path: img_path,
+      content_blk_id: content_block_id,
     });
     if (response.ok) {
       refreshTextbooks();
@@ -139,25 +143,28 @@ export const TextbookComponent = ({
         handleAddSection(
           values["title"],
           Number(values["Section Number"]),
-          Number(values["Chapter Id"])
+          Number(extraFields["chapter_id"])
         );
         break;
 
       case "content_block":
         handleAddContentBlock(
-          Number(values["Section Number"]),
-          Number(values["Section Id"])
+          Number(values["Sequence Number"]),
+          Number(extraFields["section_id"])
         );
         break;
 
       case "text":
-        handleAddTextBlock(values["Text"], Number(values["Content Block Id"]));
+        handleAddTextBlock(
+          values["Text"],
+          Number(extraFields["content_blk_id"])
+        );
         break;
 
       case "picture":
         handleAddImage(
           values["Image path"],
-          Number(values["content_block_id"])
+          Number(extraFields["content_blk_id"])
         );
         break;
 
@@ -166,9 +173,14 @@ export const TextbookComponent = ({
     }
   };
 
-  const handleAddContent = (content: String, fields: string[]) => {
+  const handleAddContent = (
+    content: String,
+    fields: string[],
+    extraFields: { [key: string]: string }
+  ) => {
     setContentType(content);
     setDialogFields(fields);
+    setExtraFields(extraFields);
     setInputDialog(true);
   };
 
@@ -188,7 +200,7 @@ export const TextbookComponent = ({
           startIcon={<AddIcon />}
           color="primary"
           onClick={() =>
-            handleAddContent("chapter", ["Title", "Chapter Number"])
+            handleAddContent("chapter", ["Title", "Chapter Number"], {})
           }
           sx={{ display: viewOnly ? "none" : "" }}
         >
@@ -232,10 +244,9 @@ export const TextbookComponent = ({
                   startIcon={<AddIcon />}
                   color="primary"
                   onClick={() =>
-                    handleAddContent("section", [
-                      "Section Number",
-                      "Chapter Id",
-                    ])
+                    handleAddContent("section", ["title", "Section Number"], {
+                      chapter_id: "" + chapter.chapter_id,
+                    })
                   }
                   sx={{ display: viewOnly ? "none" : "" }}
                 >
@@ -271,10 +282,11 @@ export const TextbookComponent = ({
                           startIcon={<AddIcon />}
                           color="primary"
                           onClick={() =>
-                            handleAddContent("content_block", [
-                              "Section Number",
-                              "Section Id",
-                            ])
+                            handleAddContent(
+                              "content_block",
+                              ["Sequence Number"],
+                              { section_id: "" + section.section_id }
+                            )
                           }
                           sx={{ display: viewOnly ? "none" : "" }}
                         >
@@ -286,108 +298,121 @@ export const TextbookComponent = ({
                     <AccordionDetails>
                       {section.content_blocks &&
                         section.content_blocks.length > 0 &&
-                        section.content_blocks.map((content, content_idx) => (
-                          <Accordion
-                            key={"content-" + content_idx}
-                            defaultExpanded
-                            sx={{ boxShadow: "none", border: "none" }}
-                          >
-                            <AccordionSummary
-                              expandIcon={<ExpandMoreIcon />}
-                              sx={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "center",
-                              }}
+                        section.content_blocks
+                          .sort((a, b) => a.sequence_number - b.sequence_number)
+                          .map((content, content_idx) => (
+                            <Accordion
+                              key={"content-" + content_idx}
+                              defaultExpanded
+                              sx={{ boxShadow: "none", border: "none" }}
                             >
-                              <Typography variant="h6">
-                                {chapter.chapter_number}.
-                                {section.section_number}.
-                                {content.sequence_number}
-                              </Typography>
-                              <Box sx={{ ml: "auto", display: "flex", gap: 1 }}>
-                                <Button
-                                  variant="outlined"
-                                  startIcon={<AddIcon />}
-                                  color="primary"
-                                  onClick={() =>
-                                    handleAddContent("text", [
-                                      "Text",
-                                      "Content Block Id",
-                                    ])
-                                  }
-                                  sx={{
-                                    display:
-                                      content.text_block !== undefined ||
-                                      viewOnly
-                                        ? "none"
-                                        : "",
-                                  }}
+                              <AccordionSummary
+                                expandIcon={<ExpandMoreIcon />}
+                                sx={{
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  alignItems: "center",
+                                }}
+                              >
+                                <Typography variant="h6">
+                                  {chapter.chapter_number}.
+                                  {section.section_number}.
+                                  {content.sequence_number}
+                                </Typography>
+                                <Box
+                                  sx={{ ml: "auto", display: "flex", gap: 1 }}
                                 >
-                                  Add Text
-                                </Button>
-                                <Button
-                                  variant="outlined"
-                                  startIcon={<AddIcon />}
-                                  color="primary"
-                                  onClick={() =>
-                                    handleAddContent("picture", [
-                                      "Image path",
-                                      "Content Block Id",
-                                    ])
-                                  }
-                                  sx={{
-                                    display:
-                                      content.image !== undefined || viewOnly
-                                        ? "none"
-                                        : "",
-                                  }}
-                                >
-                                  Add Image
-                                </Button>
-                                <Button
-                                  variant="outlined"
-                                  startIcon={<AddIcon />}
-                                  color="primary"
-                                  onClick={() =>
-                                    handleCreateActivity(
-                                      content.content_block_id
-                                    )
-                                  }
-                                  sx={{
-                                    display:
-                                      content.activity !== undefined || viewOnly
-                                        ? "none"
-                                        : "",
-                                  }}
-                                >
-                                  Add Activity
-                                </Button>
-                              </Box>
-                            </AccordionSummary>
-                            <Divider />
-                            <AccordionDetails>
-                              <Typography variant="body1">
-                                {content.text_block?.text}
-                              </Typography>
-                              {content.image && (
-                                <img
-                                  src={"" + content.image?.path}
-                                  alt="Sample"
-                                  style={{
-                                    maxWidth: "100%",
-                                    height: "auto",
-                                  }}
-                                />
-                              )}
-                              {content.activity && (
-                                <ActivityComponent
-                                  activity={content.activity}
-                                />
-                              )}
-                            </AccordionDetails>
-                          </Accordion>
-                        ))}
+                                  <Button
+                                    variant="outlined"
+                                    startIcon={<AddIcon />}
+                                    color="primary"
+                                    onClick={() =>
+                                      handleAddContent("text", ["Text"], {
+                                        content_blk_id:
+                                          "" + content.content_block_id,
+                                      })
+                                    }
+                                    sx={{
+                                      display:
+                                        (content.text_block !== undefined &&
+                                          content.text_block !== null) ||
+                                        viewOnly
+                                          ? "none"
+                                          : "",
+                                    }}
+                                  >
+                                    Add Text
+                                  </Button>
+                                  <Button
+                                    variant="outlined"
+                                    startIcon={<AddIcon />}
+                                    color="primary"
+                                    onClick={() =>
+                                      handleAddContent(
+                                        "picture",
+                                        ["Image path"],
+                                        {
+                                          content_blk_id:
+                                            "" + content.content_block_id,
+                                        }
+                                      )
+                                    }
+                                    sx={{
+                                      display:
+                                        (content.image !== undefined &&
+                                          content.image !== null) ||
+                                        viewOnly
+                                          ? "none"
+                                          : "",
+                                    }}
+                                  >
+                                    Add Image
+                                  </Button>
+                                  <Button
+                                    variant="outlined"
+                                    startIcon={<AddIcon />}
+                                    color="primary"
+                                    onClick={() =>
+                                      handleCreateActivity(
+                                        content.content_block_id
+                                      )
+                                    }
+                                    sx={{
+                                      display:
+                                        (content.activity !== undefined &&
+                                          content.activity !== null) ||
+                                        viewOnly
+                                          ? "none"
+                                          : "",
+                                    }}
+                                  >
+                                    Add Activity
+                                  </Button>
+                                </Box>
+                              </AccordionSummary>
+                              <Divider />
+                              <AccordionDetails>
+                                <Typography variant="body1">
+                                  {content.text_block?.text}
+                                </Typography>
+                                {content.image && (
+                                  <img
+                                    src={"" + content.image?.path}
+                                    alt="Sample"
+                                    style={{
+                                      maxWidth: "100%",
+                                      height: "auto",
+                                    }}
+                                  />
+                                )}
+                                {content.activity && (
+                                  <ActivityComponent
+                                    activity={content.activity}
+                                  />
+                                )}
+                              </AccordionDetails>
+                            </Accordion>
+                          ))}
                     </AccordionDetails>
                   </Accordion>
                 ))}
