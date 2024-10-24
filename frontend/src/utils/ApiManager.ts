@@ -12,12 +12,3 @@ export const PostRequest = async (url: string, data: any): Promise<Response> => 
         body: JSON.stringify(data),
     });
 }
-
-export const GetRequest = async (url: string): Promise<Response> => {
-    const fetchUrl = `${BACKEND_URL}${url}`;
-    console.log(fetchUrl);
-    return await fetch(fetchUrl, {
-        method: "GET",
-        mode: "cors",
-    });
-}
