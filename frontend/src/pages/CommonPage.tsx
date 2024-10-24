@@ -22,13 +22,19 @@ export const CommonPage = ({
   const [selectedTextbook, setSelectedTextbook] = useState<Number | undefined>(
     undefined
   );
+  const [textbook, setTextBook] = useState<Textbook | undefined>(undefined);
 
-  let textbook;
   useEffect(() => {
-    textbook = textbooks.find(
-      (textbook) => textbook.textbook_id === selectedTextbook
+    setTextBook(
+      textbooks.find((textbook) => textbook.textbook_id === selectedTextbook)
     );
   }, [selectedTextbook]);
+
+  useEffect(() => {
+    setTextBook(
+      textbooks.find((textbook) => textbook.textbook_id === selectedTextbook)
+    );
+  }, [textbooks]);
 
   return (
     <Box
@@ -60,7 +66,7 @@ export const CommonPage = ({
           >
             {courses.length > 0 &&
               courses.map((course) => (
-                <div style={{ marginBottom: 10 }}>
+                <div key={"" + course.course_id} style={{ marginBottom: 10 }}>
                   <CourseComponent
                     course={course}
                     refreshCourses={refreshCourses}

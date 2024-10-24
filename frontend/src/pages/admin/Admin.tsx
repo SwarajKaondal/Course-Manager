@@ -1,14 +1,8 @@
-import { Box, Paper } from "@mui/material";
-import Grid from "@mui/material/Grid2";
-import { CourseComponent } from "../../components/Course/Course";
-import { TextbookComponent } from "../../components/Textbook/Textbook";
 import { Course, Textbook } from "../../models/models";
-import { Header } from "../../components/Header/Header";
-import { useAuth } from "../../provider/AuthProvider";
 import { useEffect, useState } from "react";
 import { CommonPage } from "../CommonPage";
 import { GetRequest, PostRequest } from "../../utils/ApiManager";
-import { error } from "console";
+import { useAuth } from "../../provider/AuthProvider";
 
 const textbook: Textbook = {
   textbook_id: 1,
@@ -100,33 +94,28 @@ const sampleCourse: Course = {
 export const Admin = () => {
   const [course_list, setCourseList] = useState<Course[]>([]);
   const [textbook_list, setTextbookList] = useState<Textbook[]>([]);
+  const auth = useAuth();
 
   const fetchCourses = async () => {
-    const courses: Course[] = await GetRequest("/admin/courses").then(
-      (response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
+    const courses: Course[] = await PostRequest("/common/textbooks", {
+      role_id: auth.user?.role,
+    }).then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
       }
-    );
+      return response.json();
+    });
     setCourseList(courses);
-  };
+    const textbooks = courses
+      .map((course) => course.textbooks)
+      .flat()
+      .filter((textbook) => textbook !== undefined);
 
-  const fetchTextbooks = async () => {
-    const textbooks: Textbook[] = await GetRequest("/admin/textbooks").then(
-      (response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-      }
-    );
-    setTextbookList(textbooks);
+    setTextbookList(textbooks as Textbook[]);
   };
 
   const refreshTextbooks = () => {
-    fetchTextbooks();
+    fetchCourses();
   };
 
   const refreshCourses = () => {
@@ -135,7 +124,6 @@ export const Admin = () => {
 
   useEffect(() => {
     fetchCourses();
-    fetchTextbooks();
   }, []);
 
   return (
