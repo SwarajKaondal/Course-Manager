@@ -42,13 +42,14 @@ CREATE TABLE Person (
             SUBSTRING(Last_name, 1, 2),
             DATE_FORMAT(Created_On, '%m%y')
         )
-    )
+    ),
+    CONSTRAINT email_format CHECK (Email REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$')
 );
 
 CREATE TABLE Course (
     Course_ID VARCHAR(50) PRIMARY KEY,
     Title VARCHAR(255) NOT NULL,
-    Faculty VARCHAR(255) NOT NULL,
+    Faculty VARCHAR(50) NOT NULL,
     Start_Date DATE NOT NULL,
     End_Date DATE NOT NULL,
     Type ENUM('EVALUATION', 'ACTIVE') NOT NULL,
@@ -58,47 +59,51 @@ CREATE TABLE Course (
 );
 
 CREATE TABLE Textbook (
-    Textbook_ID INT PRIMARY KEY,
+    Textbook_ID INT AUTO_INCREMENT PRIMARY KEY,
     Title VARCHAR(255) NOT NULL UNIQUE,
-    Course_ID VARCHAR(50) NOT NULL,
+    Course_ID VARCHAR(50),
     FOREIGN KEY (Course_ID) REFERENCES Course(Course_ID)
 		ON DELETE CASCADE
         ON UPDATE CASCADE
 );
 
 CREATE TABLE Chapter (
-    Chapter_ID INT PRIMARY KEY,
+    Chapter_ID INT AUTO_INCREMENT PRIMARY KEY,
     Chapter_number CHAR(6) NOT NULL CHECK(Chapter_number REGEXP '^chap[0-9]{2}$'),
     Title VARCHAR(255) NOT NULL,
     Textbook_ID INT NOT NULL,
+    CONSTRAINT unique_chapter UNIQUE(Textbook_ID, Chapter_number),
     FOREIGN KEY (Textbook_ID) REFERENCES Textbook(Textbook_ID)
 		ON DELETE CASCADE
         ON UPDATE CASCADE
 );
 
 CREATE TABLE Section (
-    Section_ID INT PRIMARY KEY,
+    Section_ID INT AUTO_INCREMENT PRIMARY KEY,
     Title VARCHAR(255) NOT NULL,
     Section_number INT NOT NULL,
     Chapter_ID INT NOT NULL,
+    CONSTRAINT unique_section UNIQUE(Chapter_ID, Section_number),
     FOREIGN KEY (Chapter_ID) REFERENCES Chapter(Chapter_ID)
 		ON DELETE CASCADE
         ON UPDATE CASCADE
 );
 
 CREATE TABLE Content_Block (
-    Content_BLK_ID INT PRIMARY KEY,
-    Hidden BOOLEAN NOT NULL,
-    Created_By INT NOT NULL,
+    Content_BLK_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Hidden BOOLEAN NOT NULL DEFAULT FALSE,
+    Created_By VARCHAR(50) NOT NULL,
     Sequence_number INT NOT NULL,
     Section_ID INT NOT NULL,
+    CONSTRAINT unique_content_blk UNIQUE(Section_ID, Sequence_number), 
+    FOREIGN KEY (Created_By) REFERENCES Person(User_ID),
     FOREIGN KEY (Section_ID) REFERENCES Section(Section_ID)
 		ON DELETE CASCADE
         ON UPDATE CASCADE
 );
 
 CREATE TABLE Image (
-    Image_ID INT PRIMARY KEY,
+    Image_ID INT AUTO_INCREMENT PRIMARY KEY,
     Path VARCHAR(255) NOT NULL,
     Content_BLK_ID INT NOT NULL,
     FOREIGN KEY (Content_BLK_ID) REFERENCES Content_Block(Content_BLK_ID)
@@ -107,16 +112,16 @@ CREATE TABLE Image (
 );
 
 CREATE TABLE Text_Block (
-    Text_BLK_ID INT PRIMARY KEY,
+    Text_BLK_ID INT AUTO_INCREMENT PRIMARY KEY,
     Text VARCHAR(1023) NOT NULL,
-    Content_BLK_ID INT NOT NULL,
+    Content_BLK_ID INT UNIQUE NOT NULL,
     FOREIGN KEY (Content_BLK_ID) REFERENCES Content_Block(Content_BLK_ID)
 		ON DELETE CASCADE
         ON UPDATE CASCADE
 );
 
 CREATE TABLE Activity (
-    Activity_ID INT PRIMARY KEY,
+    Activity_ID INT AUTO_INCREMENT PRIMARY KEY,
     Question VARCHAR(255) NOT NULL,
     Content_BLK_ID INT NOT NULL,
     FOREIGN KEY (Content_BLK_ID) REFERENCES Content_Block(Content_BLK_ID)
@@ -125,7 +130,7 @@ CREATE TABLE Activity (
 );
 
 CREATE TABLE Answer (
-    Answer_ID INT PRIMARY KEY,
+    Answer_ID INT AUTO_INCREMENT PRIMARY KEY,
     Answer_Text VARCHAR(255) NOT NULL,
     Answer_Explanation VARCHAR(255) NOT NULL,
     Correct BOOLEAN NOT NULL,
@@ -138,7 +143,7 @@ CREATE TABLE Answer (
 
 CREATE TABLE Active_Course (
     Course_ID VARCHAR(50),
-    Unique_Token VARCHAR(255) UNIQUE NOT NULL,
+    Token VARCHAR(255) UNIQUE NOT NULL,
     Course_Capacity INT NOT NULL,
     PRIMARY KEY (Course_ID),
     FOREIGN KEY (Course_ID) REFERENCES Course(Course_ID)

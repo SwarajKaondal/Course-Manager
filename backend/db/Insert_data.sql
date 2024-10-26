@@ -1,12 +1,13 @@
 -- Insert data into person_role
 INSERT INTO person_role (Role_ID, Role_name) VALUES
 (1, 'Admin'),
-(2, 'Instructor'),
+(2, 'Faculty'),
 (3, 'Student'),
 (4, 'Teaching Assistant');
 
 -- Insert data into Person
 INSERT INTO Person (User_ID, First_name, Last_name, Email, Password, Created_On, Role_ID) VALUES
+('JbDo0923', 'Jbne', 'Doe', 'jbne.doe@example.com', 'password123', '2023-09-01', 1),
 ('JaDo0923', 'Jane', 'Doe', 'jane.doe@example.com', 'password123', '2023-09-01', 2),
 ('JoSm0923', 'John', 'Smith', 'john.smith@example.com', 'password123', '2023-09-02', 2),
 ('AlJo0923', 'Alice', 'Johnson', 'alice.johnson@example.com', 'password123', '2023-09-03', 2),
@@ -42,10 +43,10 @@ INSERT INTO Section (Section_ID, Title, Section_number, Chapter_ID) VALUES
 
 -- Insert data into Content_Block
 INSERT INTO Content_Block (Content_BLK_ID, Hidden, Created_By, Sequence_number, Section_ID) VALUES
-(1, FALSE, 1, 1, 1),
-(2, FALSE, 1, 2, 3),
-(3, TRUE, 2, 1, 4),
-(4, FALSE, 3, 1, 2);
+(1, FALSE, 'JaDo0923', 1, 1),
+(2, FALSE, 'JaDo0923', 2, 3),
+(3, TRUE, 'JaDo0923', 1, 4),
+(4, FALSE, 'JaDo0923', 1, 2);
 
 -- Insert data into Image
 INSERT INTO Image (Image_ID, Path, Content_BLK_ID) VALUES
@@ -60,15 +61,16 @@ INSERT INTO Text_Block (Text_BLK_ID, Text, Content_BLK_ID) VALUES
 -- Insert data into Activity
 INSERT INTO Activity (Activity_ID, Question, Content_BLK_ID) VALUES
 (1, 'What is a variable?', 1),
-(2, 'What is an SQL JOIN?', 2);
 
 -- Insert data into Answer
 INSERT INTO Answer (Answer_ID, Answer_Text, Answer_Explanation, Correct, Activity_ID) VALUES
 (1, 'A placeholder for data', 'Variables are used to store data values.', TRUE, 1),
-(2, 'Combines rows from two or more tables', 'JOINs are used to combine rows.', TRUE, 2);
+(2, 'Combines rows from two or more tables', 'JOINs are used to combine rows.', FALSE, 1),
+(3, 'Combines rows from two or more tables', 'JOINs are used to combine rows.', FALSE, 1),
+(4, 'Combines rows from two or more tables', 'JOINs are used to combine rows.', FALSE, 1);
 
 -- Insert data into Active_Course
-INSERT INTO Active_Course (Course_ID, Unique_Token, Course_Capacity) VALUES
+INSERT INTO Active_Course (Course_ID, Token, Course_Capacity) VALUES
 ('C001', 'TOKEN123', 30),
 ('C002', 'TOKEN456', 25);
 
