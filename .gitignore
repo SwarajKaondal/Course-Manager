@@ -4,6 +4,7 @@ __pycache__/
 .DS_Store
 .env
 venv/
+venvzybook/
 zybooks_env/
 *.egg-info/
 
