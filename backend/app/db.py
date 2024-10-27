@@ -60,11 +60,14 @@ def call_procedure_with_params(procedure, params):
       cursor.close()
       conn.close()
 
-def execute_raw_sql(query, params):
+def execute_raw_sql(query, params = None):
     conn = connection_pool.get_connection()
     cursor = conn.cursor()
     try:
-        cursor.execute(query, params)
+        if params is None:
+            cursor.execute(query)
+        else:
+            cursor.execute(query, params)
         result = cursor.fetchall()
         return result
     except mysql.connector.Error as err:
@@ -77,11 +80,10 @@ def execute_raw_sql(query, params):
 
 def execute_query(query, params, success_msg):
     data = request.get_json()
-
     param_vals = ()
     for param in params:
         val = data.get(param)
-        if not val:
+        if val == None:
             abort(400, description="Missing required fields")
         param_vals += (val,)
 

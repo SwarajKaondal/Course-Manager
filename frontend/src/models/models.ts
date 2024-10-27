@@ -41,7 +41,7 @@ export interface Section {
 
 export interface Content_block {
   content_block_id: number;
-  hidden: Boolean;
+  hidden: number;
   created_by: User;
   sequence_number: number;
   text_block: Text_block | undefined;
@@ -72,12 +72,11 @@ export interface Activity {
 export interface Answer {
   answer_id: number;
   answer_text: String;
-  answer_explaination: String;
-  correct: Boolean;
+  answer_explanation: String;
+  correct: number;
 }
 
 export interface Score {
-  user_id: User;
   timestamp: Date;
   score: number;
 }

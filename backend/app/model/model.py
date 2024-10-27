@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import List, Optional
 
 class User:
-    def __init__(self, first_name, last_name, user_id, email, role, role_name):
+    def __init__(self, user_id, first_name, last_name, email, role, role_name):
         self.first_name = first_name
         self.last_name = last_name
         self.user_id = user_id
@@ -79,7 +79,10 @@ class Activity:
         return {
             "activity_id": self.activity_id,
             "question": self.question,
-            "answers": [answer.to_dict() for answer in self.answers]
+            "answer1": self.answer1.to_dict() if self.answer1 else None,
+            "answer2": self.answer2.to_dict() if self.answer2 else None,
+            "answer3": self.answer3.to_dict() if self.answer3 else None,
+            "answer4": self.answer4.to_dict() if self.answer4 else None
         }
 
 

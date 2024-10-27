@@ -7,40 +7,42 @@ import {
   Radio,
   Button,
 } from "@mui/material";
-import { Activity, Score } from "../../models/models";
+import { Activity } from "../../models/models";
+import { useAuth } from "../../provider/AuthProvider";
+import { PostRequest } from "../../utils/ApiManager";
 
 export const ActivityComponent = ({ activity }: { activity: Activity }) => {
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
-  const [submitted, setSubmitted] = useState<boolean>(false);
   const [explanation, setExplanation] = useState<string | null>(null);
+  const auth = useAuth();
+
+  const saveAnswer = async (score: number) => {
+    const response = await PostRequest("/student/save_answer", {
+      role: auth.user?.role,
+      user_id: auth.user?.user_id,
+      activity_id: activity.activity_id,
+      score: score,
+    });
+  };
 
   const handleAnswerChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedAnswer(Number(event.target.value));
-    setExplanation(null);
-  };
+    const answer = [
+      activity.answer1,
+      activity.answer2,
+      activity.answer3,
+      activity.answer4,
+    ].find((answer) => answer.answer_id === Number(event.target.value));
 
-  // Handles the form submission
-  const handleSubmit = () => {
-    if (selectedAnswer !== null) {
-      const selected = [
-        activity.answer1,
-        activity.answer2,
-        activity.answer3,
-        activity.answer4,
-      ].find((answer) => answer.answer_id === selectedAnswer);
-
-      if (selected) {
-        setExplanation("" + selected.answer_explaination);
-        setSubmitted(true);
-
-        // Score calculation (1 point for correct, 0 for incorrect)
-        // const userScore: Score = {
-        //   user_id: { user_id: "", name: "John Doe" }, // Example user
-        //   timestamp: new Date(),
-        //   score: selected.correct ? 1 : 0,
-        // };
-      }
+    if (answer !== undefined) {
+      setExplanation("" + answer.answer_explanation);
     }
+
+    let score = 1;
+    if (answer?.correct == 1) {
+      score = 3;
+    }
+    saveAnswer(score);
   };
 
   return (
@@ -68,16 +70,8 @@ export const ActivityComponent = ({ activity }: { activity: Activity }) => {
           label={activity.answer4.answer_text}
         />
       </RadioGroup>
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={handleSubmit}
-        disabled={submitted}
-      >
-        Submit
-      </Button>
 
-      {submitted && explanation && (
+      {explanation && (
         <Box mt={2}>
           <Typography variant="body1">Explanation: {explanation}</Typography>
         </Box>

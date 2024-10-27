@@ -4,8 +4,12 @@ from model.model import Role, Textbook, Course, Chapter, Section, ContentBlock, 
 
 common = Blueprint('common', __name__, url_prefix='/common')
 
+GET_COURSES_ADMIN = "SELECT C.COURSE_ID, C.TITLE, C.FACULTY, C.START_DATE, C.END_DATE, C.TYPE, AC.TOKEN, AC.Course_Capacity FROM COURSE C LEFT JOIN Active_Course AC ON C.Course_ID = AC.Course_ID"
 
-GET_COURSES = "SELECT C.COURSE_ID, C.TITLE, C.FACULTY, C.START_DATE, C.END_DATE, C.TYPE, AC.TOKEN, AC.Course_Capacity FROM COURSE C LEFT JOIN Active_Course AC ON C.Course_ID = AC.Course_ID WHERE Faculty = %s"
+GET_COURSES_TA = "SELECT C.COURSE_ID, C.TITLE, C.FACULTY, C.START_DATE, C.END_DATE, C.TYPE, AC.TOKEN, AC.Course_Capacity FROM COURSE C LEFT JOIN Active_Course AC ON C.Course_ID = AC.Course_ID WHERE Faculty = %s"
+GET_COURSES_STUDENT = "SELECT C.COURSE_ID, C.TITLE, C.FACULTY, C.START_DATE, C.END_DATE, C.TYPE, AC.TOKEN, AC.Course_Capacity FROM COURSE C LEFT JOIN Active_Course AC ON C.Course_ID = AC.Course_ID WHERE Faculty = %s"
+
+GET_COURSES_FACULTY = "SELECT C.COURSE_ID, C.TITLE, C.FACULTY, C.START_DATE, C.END_DATE, C.TYPE, AC.TOKEN, AC.Course_Capacity FROM COURSE C LEFT JOIN Active_Course AC ON C.Course_ID = AC.Course_ID WHERE Faculty = %s"
 GET_TEXTBOOK = "SELECT Textbook_ID, Title FROM Textbook WHERE Course_ID = %s"
 GET_CHAPTER = "SELECT Chapter_ID, Chapter_Number, Title FROM Chapter WHERE Textbook_ID = %s"
 GET_SECTION = "SELECT Section_ID, Title, Section_Number FROM Section WHERE Chapter_ID = %s"
@@ -14,7 +18,7 @@ GET_IMAGE = "SELECT Image_ID, Path FROM Image WHERE Content_BLK_ID = %s"
 GET_TEXT_BLOCK = "SELECT Text_Blk_ID, Text FROM Text_Block WHERE Content_BLK_ID = %s"
 GET_ACTIVIY = "SELECT Activity_ID, Question FROM Activity WHERE Content_BLK_ID = %s"
 GET_ANSWERS = "SELECT Answer_ID, Answer_Text, Answer_Explanation, Correct FROM Answer WHERE Activity_ID = %s"
-GET_FACULTY = "SELECT P.User_ID, P.First_Name, P.Last_Name, P.Email, R.Role_name, P.Role_ID FROM Person P, Person_Role R WHERE user_id = %s AND P.Role_ID = R.Role_ID"
+GET_FACULTY = "SELECT P.User_ID, P.First_Name, P.Last_Name, P.Email, R.Role_name, P.Role_ID FROM Person P, Person_Role R, Course C WHERE C.course_id = %s AND C.faculty = P.user_id AND P.Role_ID = R.Role_ID"
 
 
 @common.route('/roles', methods=['GET'])
@@ -29,14 +33,23 @@ def get_roles():
 @common.route('/textbooks', methods=['POST'])
 def get_courses():
     data = request.get_json()
+    user_role_id = data['role_id']
     course_list = []
 
+    if user_role_id == 1:
+        courses = execute_raw_sql(GET_COURSES_ADMIN)
+    elif user_role_id == 2:
+        courses = execute_raw_sql(GET_COURSES_FACULTY, (data['user_id'],))
+    elif user_role_id == 3:
+        courses = execute_raw_sql(GET_COURSES_STUDENT, (data['user_id'],))
+    elif user_role_id == 4:
+        courses = execute_raw_sql(GET_COURSES_TA, (data['user_id'],))
     # Fetch courses for the user
-    courses = execute_raw_sql(GET_COURSES, (data['user_id'],))
+    
     for course in courses:
         c = Course(*course)
 
-        faculty = execute_raw_sql(GET_FACULTY, (data['user_id'],))
+        faculty = execute_raw_sql(GET_FACULTY, (c.course_id,))
         c.faculty = Faculty(*faculty[0]) if faculty else None
         
         # Fetch textbooks related to the course
@@ -78,10 +91,11 @@ def get_courses():
 
                             # Fetch answers associated with the activity
                             answers = execute_raw_sql(GET_ANSWERS, (activity.activity_id,))
-                            activity.answer1 = Answer(*answers[0])
-                            activity.answer2 = Answer(*answers[1])
-                            activity.answer3 = Answer(*answers[2])
-                            activity.answer4 = Answer(*answers[3])
+                            if len(answers) == 4:
+                                activity.answer1 = Answer(*answers[0])
+                                activity.answer2 = Answer(*answers[1])
+                                activity.answer3 = Answer(*answers[2])
+                                activity.answer4 = Answer(*answers[3])
 
                             content_block.activity = activity
 
@@ -99,8 +113,5 @@ def get_courses():
 
         # Add course to the final course list
         course_list.append(c.to_dict())
-
-    # Output the course list for debugging
-    print(course_list)
 
     return jsonify(course_list), 200
