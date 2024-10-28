@@ -34,6 +34,7 @@ def call_procedure(procedure, params):
         result = []
         for res in cursor.stored_results():
             result.append(res.fetchall())
+        conn.commit()
         return result
     except mysql.connector.Error as err:
       abort(400, description=f"Database error: {str(err)}")
@@ -50,6 +51,7 @@ def call_procedure_with_params(procedure, params):
         cursor.callproc(procedure, params)
         result = []
         for res in cursor.stored_results():
+            conn.commit()
             result.append(res.fetchall())
         return result
     except mysql.connector.Error as err:
@@ -69,6 +71,7 @@ def execute_raw_sql(query, params = None):
         else:
             cursor.execute(query, params)
         result = cursor.fetchall()
+        conn.commit()
         return result
     except mysql.connector.Error as err:
         abort(400, description=f"Database error: {str(err)}")
