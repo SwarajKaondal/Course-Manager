@@ -5,7 +5,7 @@ DROP PROCEDURE IF EXISTS ta_hide_content;
 DELIMITER //
 CREATE PROCEDURE ta_hide_content(IN content_blk_id INT)
 BEGIN
-  UPDATE Content_Block cont_blk 
+  UPDATE content_block cont_blk 
   SET Hidden = TRUE 
   WHERE cont_blk.Content_BLK_ID = content_blk_id;
 END ; //
