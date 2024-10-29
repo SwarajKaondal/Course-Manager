@@ -12,7 +12,7 @@ class User:
 
     def __repr__(self):
         return f"User(username={self.username}, email={self.email})"
-    
+
     def to_dict(self):
         return {
             "first_name": self.first_name,
@@ -22,7 +22,7 @@ class User:
             "role": self.role,
             "role_name": self.role_name
         }
-    
+
 
 
 class Role:
@@ -32,13 +32,13 @@ class Role:
 
     def __repr__(self):
         return f"Role(name={self.name})"
-    
+
     def to_dict(self):
         return {
             "role": self.role_id,
             "role_name": self.role_name
         }
-    
+
 class Answer:
     def __init__(self, answer_id: int, answer_text: str, answer_explanation: str, correct: bool):
         self.answer_id = answer_id
@@ -70,10 +70,10 @@ class Activity:
     def __init__(self, activity_id: int, question: str):
         self.activity_id = activity_id
         self.question = question
-        self.answer1 = None
-        self.answer2 = None
-        self.answer3 = None
-        self.answer4 = None
+        self.answer1: Answer | None = None
+        self.answer2: Answer | None = None
+        self.answer3: Answer | None = None
+        self.answer4: Answer | None = None
 
     def to_dict(self):
         return {
@@ -106,7 +106,7 @@ class ContentBlock:
         self.sequence_number = sequence_number
         self.text_block: Optional[TextBlock] = None
         self.image: Optional[Image] = None
-        self.activity: Optional[Activity] = None
+        self.activity: List[Activity] = []
 
     def to_dict(self):
         return {
@@ -116,7 +116,7 @@ class ContentBlock:
             "sequence_number": self.sequence_number,
             "text_block": self.text_block.to_dict() if self.text_block else None,
             "image": self.image.to_dict() if self.image else None,
-            "activity": self.activity.to_dict() if self.activity else None
+            "activity": [activity.to_dict() for activity in self.activity] if self.activity else None
         }
 
 
@@ -187,29 +187,30 @@ class Faculty:
 
 
 class Course:
-    def __init__(self, course_id: str, title: str, faculty: Faculty, start_date: datetime, end_date: datetime, type: str, token: str, course_capacity: int):
+    def __init__(self, course_id: str, title: str, faculty: Faculty, start_date: datetime, end_date: datetime, type: str, token: str, course_capacity: int, textbook_id: int):
         self.course_id = course_id
         self.title = title
-        self.faculty = faculty
+        self.faculty: Faculty | None = faculty
         self.start_date = start_date
         self.end_date = end_date
         self.type = type
         self.token = token
-        self.course_capacity = course_capacity
-        self.textbooks: List[Textbook] = []
-        
+        self.course_capacity  = course_capacity
+        self.textbook_id = textbook_id
+        self.textbook: Textbook | None = None
+
 
     def to_dict(self):
         return {
             "course_id": self.course_id,
             "title": self.title,
-            "faculty": self.faculty.to_dict(),
+            "faculty": self.faculty.to_dict() if self.faculty else None,
             "start_date": self.start_date.isoformat(),
             "end_date": self.end_date.isoformat(),
             "type": self.type,
             "token": self.token,
             "course_capacity": self.course_capacity,
-            "textbooks": [textbook.to_dict() for textbook in self.textbooks]
+            "textbooks": self.textbook.to_dict() if self.textbook else None
         }
 
 

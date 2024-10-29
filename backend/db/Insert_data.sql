@@ -82,7 +82,7 @@ INSERT INTO Content_Block (Content_BLK_ID, Hidden, Created_By, Sequence_number, 
 INSERT INTO Image (Image_ID, Path, Content_BLK_ID) VALUES
 (1, '/images/sample.png', 4),
 (2, '/images/sample2.png', 8);
-	
+
 -- Insert data into Text_Block
 INSERT INTO Text_Block (Text_BLK_ID, Text, Content_BLK_ID) VALUES
 (1, 'A Database Management System (DBMS) is software that enables users to efficiently create, manage, and manipulate databases. It serves as an interface between the database and end users, ensuring data is stored securely, retrieved accurately, and maintained consistently. Key features of a DBMS include data organization, transaction management, and support for multiple users accessing data concurrently.', 1),
@@ -174,17 +174,19 @@ INSERT INTO Waitlist (Course_ID, Student_ID) VALUES
 
 -- Insert data into Teaching_Assistant
 INSERT INTO Teaching_Assistant (Course_ID, Student_ID) VALUES
-('NCSUOganCSC440F24', 'KeOg1024'),
-('NCSUOganCSC540F24', 'KeOg1024'),
-('NCSUSaraCSC326F24', 'SaMi1024'),
-('NCSUJegiCSC522F24', 'JeGi0924'),
-('NCSUSaraCSC326F25', 'SaMi1024');
+('NCSUOganCSC440F24', 'JaWi1024'),
+('NCSUOganCSC540F24', 'LiAl0924'),
+('NCSUSaraCSC326F24', 'DaJo1024'),
+('NCSUJegiCSC522F24', 'ElCl1024'),
+('NCSUSaraCSC326F25', 'JeGi0924');
+
+
 
 
 INSERT INTO Score (User_ID, Activity_ID, Course_ID, TStamp, Score) VALUES
-('ErPe1025', 1, 'NCSUOganCSC440F24', '2024.08.01-11:10', 3),
-('ErPe1025', 2, 'NCSUOganCSC440F24', '2024.08.01-14:18', 1),
-('ErPe1025', 1, 'NCSUOganCSC540F24', '2024.08.02-19:06', 1),
+('ErPe1024', 1, 'NCSUOganCSC440F24', '2024.08.01-11:10', 3),
+('ErPe1024', 2, 'NCSUOganCSC440F24', '2024.08.01-14:18', 1),
+('ErPe1024', 1, 'NCSUOganCSC540F24', '2024.08.02-19:06', 1),
 ('AlAr1024', 1, 'NCSUOganCSC440F24', '2024.08.01-13:24', 3),
 ('BoTe1024', 1, 'NCSUOganCSC440F24', '2024.08.01-09:24', 0),
 ('LiGa1024', 1, 'NCSUOganCSC440F24', '2024.08.01-07:45', 3),

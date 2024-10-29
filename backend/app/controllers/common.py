@@ -4,13 +4,12 @@ from model.model import Role, Textbook, Course, Chapter, Section, ContentBlock, 
 
 common = Blueprint('common', __name__, url_prefix='/common')
 
-GET_COURSES_ADMIN = "SELECT C.COURSE_ID, C.TITLE, C.FACULTY, C.START_DATE, C.END_DATE, C.TYPE, AC.TOKEN, AC.Course_Capacity FROM COURSE C LEFT JOIN Active_Course AC ON C.Course_ID = AC.Course_ID"
+GET_COURSES_ADMIN = "SELECT C.COURSE_ID, C.TITLE, C.FACULTY, C.START_DATE, C.END_DATE, C.TYPE, AC.TOKEN, AC.Course_Capacity, C.Textbook_ID FROM COURSE C LEFT JOIN Active_Course AC ON C.Course_ID = AC.Course_ID"
+GET_COURSES_TA = "SELECT C.COURSE_ID, C.TITLE, C.FACULTY, C.START_DATE, C.END_DATE, C.TYPE, AC.TOKEN, AC.Course_Capacity, C.Textbook_ID FROM COURSE C LEFT JOIN Active_Course AC ON C.Course_ID = AC.Course_ID JOIN Teaching_Assistant TA ON C.Course_ID = TA.Course_ID WHERE Student_ID = %s"
+GET_COURSES_STUDENT = "SELECT C.COURSE_ID, C.TITLE, C.FACULTY, C.START_DATE, C.END_DATE, C.TYPE, AC.TOKEN, AC.Course_Capacity, C.Textbook_ID FROM COURSE C LEFT JOIN Active_Course AC ON C.Course_ID = AC.Course_ID JOIN Enroll E ON C.Course_ID = E.Course_ID WHERE E.Student_ID = %s"
+GET_COURSES_FACULTY = "SELECT C.COURSE_ID, C.TITLE, C.FACULTY, C.START_DATE, C.END_DATE, C.TYPE, AC.TOKEN, AC.Course_Capacity, C.Textbook_ID FROM COURSE C LEFT JOIN Active_Course AC ON C.Course_ID = AC.Course_ID WHERE Faculty = %s"
 
-GET_COURSES_TA = "SELECT C.COURSE_ID, C.TITLE, C.FACULTY, C.START_DATE, C.END_DATE, C.TYPE, AC.TOKEN, AC.Course_Capacity FROM COURSE C LEFT JOIN Active_Course AC ON C.Course_ID = AC.Course_ID WHERE Faculty = %s"
-GET_COURSES_STUDENT = "SELECT C.COURSE_ID, C.TITLE, C.FACULTY, C.START_DATE, C.END_DATE, C.TYPE, AC.TOKEN, AC.Course_Capacity FROM COURSE C LEFT JOIN Active_Course AC ON C.Course_ID = AC.Course_ID WHERE Faculty = %s"
-
-GET_COURSES_FACULTY = "SELECT C.COURSE_ID, C.TITLE, C.FACULTY, C.START_DATE, C.END_DATE, C.TYPE, AC.TOKEN, AC.Course_Capacity FROM COURSE C LEFT JOIN Active_Course AC ON C.Course_ID = AC.Course_ID WHERE Faculty = %s"
-GET_TEXTBOOK = "SELECT Textbook_ID, Title FROM Textbook WHERE Course_ID = %s"
+GET_TEXTBOOK = "SELECT Textbook_ID, Title FROM Textbook WHERE Textbook_ID = %s"
 GET_CHAPTER = "SELECT Chapter_ID, Chapter_Number, Title FROM Chapter WHERE Textbook_ID = %s"
 GET_SECTION = "SELECT Section_ID, Title, Section_Number FROM Section WHERE Chapter_ID = %s"
 GET_CONTENT_BLOCK = "SELECT Content_BLK_ID, HIDDEN, Created_By, Sequence_Number FROM Content_Block WHERE Section_ID = %s"
@@ -30,11 +29,12 @@ def get_roles():
     return jsonify(roles), 200
 
 
-@common.route('/textbooks', methods=['POST'])
+@common.route('/course', methods=['POST'])
 def get_courses():
     data = request.get_json()
     user_role_id = data['role_id']
     course_list = []
+    courses = []
 
     if user_role_id == 1:
         courses = execute_raw_sql(GET_COURSES_ADMIN)
@@ -45,15 +45,15 @@ def get_courses():
     elif user_role_id == 4:
         courses = execute_raw_sql(GET_COURSES_TA, (data['user_id'],))
     # Fetch courses for the user
-    
+
     for course in courses:
         c = Course(*course)
 
         faculty = execute_raw_sql(GET_FACULTY, (c.course_id,))
         c.faculty = Faculty(*faculty[0]) if faculty else None
-        
+
         # Fetch textbooks related to the course
-        textbooks = execute_raw_sql(GET_TEXTBOOK, (c.course_id,))
+        textbooks = execute_raw_sql(GET_TEXTBOOK, (c.textbook_id,))
         for textbook in textbooks:
             textbook = Textbook(*textbook)
 
@@ -97,7 +97,7 @@ def get_courses():
                                 activity.answer3 = Answer(*answers[2])
                                 activity.answer4 = Answer(*answers[3])
 
-                            content_block.activity = activity
+                            content_block.activity.append(activity)
 
                         # Append content blocks to the section
                         section.content_blocks.append(content_block)
@@ -107,9 +107,8 @@ def get_courses():
 
                 # Append chapters to the textbook
                 textbook.chapters.append(chapter)
-
             # Append textbooks to the course
-            c.textbooks.append(textbook)
+            c.textbook = textbook
 
         # Add course to the final course list
         course_list.append(c.to_dict())
