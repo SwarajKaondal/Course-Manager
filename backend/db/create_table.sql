@@ -13,11 +13,10 @@ DROP TABLE IF EXISTS Waitlist;
 DROP TABLE IF EXISTS Active_Course;
 DROP TABLE IF EXISTS Section;
 DROP TABLE IF EXISTS Chapter;
-DROP TABLE IF EXISTS Textbook;
 DROP TABLE IF EXISTS Course;
 DROP TABLE IF EXISTS Person;
 DROP TABLE IF EXISTS Person_Role;
-
+DROP TABLE IF EXISTS Textbook;
 
 CREATE TABLE Person_Role (
     Role_ID INT PRIMARY KEY,
@@ -43,7 +42,14 @@ CREATE TABLE Person (
             DATE_FORMAT(Created_On, '%m%y')
         )
     ),
-    CONSTRAINT email_format CHECK (Email REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$')
+    CONSTRAINT email_format CHECK (Email REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.(com|edu|mail)$')
+);
+
+
+
+CREATE TABLE Textbook (
+    Textbook_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Title VARCHAR(255) NOT NULL UNIQUE
 );
 
 CREATE TABLE Course (
@@ -53,16 +59,11 @@ CREATE TABLE Course (
     Start_Date DATE NOT NULL,
     End_Date DATE NOT NULL,
     Type ENUM('EVALUATION', 'ACTIVE') NOT NULL,
+    Textbook_ID INT NOT NULL,
     FOREIGN KEY (Faculty) REFERENCES Person(User_ID)
 		ON DELETE CASCADE
-        ON UPDATE CASCADE
-);
-
-CREATE TABLE Textbook (
-    Textbook_ID INT AUTO_INCREMENT PRIMARY KEY,
-    Title VARCHAR(255) NOT NULL UNIQUE,
-    Course_ID VARCHAR(50),
-    FOREIGN KEY (Course_ID) REFERENCES Course(Course_ID)
+        ON UPDATE CASCADE,
+	FOREIGN KEY (Textbook_ID) REFERENCES Textbook(Textbook_ID)
 		ON DELETE CASCADE
         ON UPDATE CASCADE
 );
@@ -70,6 +71,7 @@ CREATE TABLE Textbook (
 CREATE TABLE Chapter (
     Chapter_ID INT AUTO_INCREMENT PRIMARY KEY,
     Chapter_number CHAR(6) NOT NULL CHECK(Chapter_number REGEXP '^chap[0-9]{2}$'),
+    Hidden BOOLEAN NOT NULL DEFAULT FALSE,
     Title VARCHAR(255) NOT NULL,
     Textbook_ID INT NOT NULL,
     CONSTRAINT unique_chapter UNIQUE(Textbook_ID, Chapter_number),
@@ -81,8 +83,9 @@ CREATE TABLE Chapter (
 CREATE TABLE Section (
     Section_ID INT AUTO_INCREMENT PRIMARY KEY,
     Title VARCHAR(255) NOT NULL,
-    Section_number INT NOT NULL,
+    Section_number char(5) NOT NULL,
     Chapter_ID INT NOT NULL,
+    Hidden BOOLEAN NOT NULL DEFAULT FALSE,
     CONSTRAINT unique_section UNIQUE(Chapter_ID, Section_number),
     FOREIGN KEY (Chapter_ID) REFERENCES Chapter(Chapter_ID)
 		ON DELETE CASCADE
@@ -113,7 +116,7 @@ CREATE TABLE Image (
 
 CREATE TABLE Text_Block (
     Text_BLK_ID INT AUTO_INCREMENT PRIMARY KEY,
-    Text VARCHAR(1023) NOT NULL,
+    Text TEXT NOT NULL,
     Content_BLK_ID INT UNIQUE NOT NULL,
     FOREIGN KEY (Content_BLK_ID) REFERENCES Content_Block(Content_BLK_ID)
 		ON DELETE CASCADE
@@ -122,6 +125,7 @@ CREATE TABLE Text_Block (
 
 CREATE TABLE Activity (
     Activity_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Question_ID VARCHAR(3) NOT NULL,
     Question VARCHAR(255) NOT NULL,
     Content_BLK_ID INT NOT NULL,
     FOREIGN KEY (Content_BLK_ID) REFERENCES Content_Block(Content_BLK_ID)
@@ -131,8 +135,8 @@ CREATE TABLE Activity (
 
 CREATE TABLE Answer (
     Answer_ID INT AUTO_INCREMENT PRIMARY KEY,
-    Answer_Text VARCHAR(255) NOT NULL,
-    Answer_Explanation VARCHAR(255) NOT NULL,
+    Answer_Text TEXT NOT NULL,
+    Answer_Explanation TEXT NOT NULL,
     Correct BOOLEAN NOT NULL,
     Activity_ID INT NOT NULL,
     FOREIGN KEY (Activity_ID) REFERENCES Activity(Activity_ID)
@@ -198,6 +202,7 @@ CREATE TABLE Notification (
 
 CREATE TABLE Score (
     User_ID VARCHAR(50),
+    Course_ID VARCHAR(50),
     Activity_ID INT,
     TStamp DATETIME NOT NULL,
     Score INT NOT NULL,
@@ -205,6 +210,9 @@ CREATE TABLE Score (
         ON DELETE CASCADE
         ON UPDATE CASCADE,
     FOREIGN KEY (Activity_ID) REFERENCES Activity(Activity_ID)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+	FOREIGN KEY (Course_ID) REFERENCES Course(Course_ID)
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
