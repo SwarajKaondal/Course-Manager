@@ -7,7 +7,10 @@ faculty = Blueprint('faculty', __name__, url_prefix='/faculty')
 @faculty.route('/students', methods=['POST'])
 def get_students():
     result = call_procedure('faculty_view_students', ['course_id'])
-    return jsonify(result), 200
+    students = []
+    for row in result[0]:
+        students.append(Person(*row).to_dict())
+    return jsonify(students), 200
 
 @faculty.route('/waitlist', methods=['POST'])
 def get_waitlist():

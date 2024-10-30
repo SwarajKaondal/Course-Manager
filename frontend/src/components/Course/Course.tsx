@@ -1,4 +1,4 @@
-import { Course, Textbook, Waitlist } from "../../models/models";
+import { Course, Textbook, User, Waitlist } from "../../models/models";
 import { styled } from "@mui/material/styles";
 import { format } from "date-fns";
 import AddIcon from "@mui/icons-material/Add";
@@ -40,17 +40,21 @@ export const CourseComponent = ({
   refreshCourses,
   viewOnly,
   showWaitlist,
+  showStudents,
 }: {
   course: Course;
   selectTextbook: React.Dispatch<React.SetStateAction<Number | undefined>>;
   refreshCourses: () => void;
   viewOnly: Boolean;
   showWaitlist: Boolean;
+  showStudents: Boolean;
 }) => {
   const [open, setOpen] = useState(false);
   const [openWaitlist, setOpenWaitlist] = useState(false);
+  const [openStudents, setOpenStudents] = useState(false);
   const [textbookName, setTextbookName] = useState("");
   const [waitlist, setWaitlist] = useState<Waitlist | null>(null);
+  const [students, setStudents] = useState<User[]>([]);
 
   const fetchWaitlist = async () => {
     const response = await PostRequest("/faculty/waitlist", {
@@ -58,6 +62,16 @@ export const CourseComponent = ({
     });
     if (response.ok) {
       const data = (await response.json()) as Waitlist;
+      return data;
+    }
+  };
+
+  const fetchStudents = async () => {
+    const response = await PostRequest("/faculty/students", {
+      course_id: course.course_id,
+    });
+    if (response.ok) {
+      const data = (await response.json()) as User[];
       return data;
     }
   };
@@ -76,6 +90,18 @@ export const CourseComponent = ({
     if (waitlist !== null) {
       setOpenWaitlist(true);
     }
+  };
+
+  const handleOpenStudents = async () => {
+    const students = await fetchStudents();
+    setStudents(students ?? []);
+    if (students !== null) {
+      setOpenStudents(true);
+    }
+  };
+
+  const handleCloseStudents = () => {
+    setOpenStudents(false);
   };
 
   const handleCloseWaitlist = () => {
@@ -246,6 +272,55 @@ export const CourseComponent = ({
               onClick={handleClickOpenWaitlist}
             >
               View Waitlist
+            </Button>
+          )}
+          <Dialog open={openStudents} onClose={handleCloseStudents}>
+            <DialogTitle>View Students</DialogTitle>
+            <DialogContent>
+              <TableContainer component={Paper}>
+                <Table sx={{}}>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell align="right">Student Id</TableCell>
+                      <TableCell align="right">First Name</TableCell>
+                      <TableCell align="right">Last Name</TableCell>
+                      <TableCell align="right">Email</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {students?.map((student, id) => (
+                      <TableRow key={id}>
+                        <TableCell align="right">{student.user_id}</TableCell>
+                        <TableCell align="right">
+                          {student.first_name}
+                        </TableCell>
+                        <TableCell align="right">{student.last_name}</TableCell>
+                        <TableCell align="right">{student.email}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleCloseStudents} color="secondary">
+                Cancel
+              </Button>
+            </DialogActions>
+          </Dialog>
+          {showStudents && course.type.toLowerCase() === "active" && (
+            <Button
+              variant="outlined"
+              startIcon={<ExpandMoreIcon />}
+              size="small"
+              sx={{
+                marginBottom: 1,
+                marginTop: 1,
+                display: viewOnly ? "none" : "",
+              }}
+              onClick={handleOpenStudents}
+            >
+              View Students
             </Button>
           )}
         </CardContent>

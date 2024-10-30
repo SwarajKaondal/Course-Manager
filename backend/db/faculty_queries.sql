@@ -73,13 +73,13 @@ DROP PROCEDURE IF EXISTS faculty_view_students;
 DELIMITER //
 CREATE PROCEDURE faculty_view_students(IN course_id VARCHAR(255))
 BEGIN
-	SELECT P.User_ID, P.First_name, P.Last_name
-    FROM Person P
+	SELECT P.User_ID, P.First_name, P.Last_name, P.email, PR.Role_Name, P.role_id
+    FROM Person P, Person_Role PR
     WHERE P.User_ID IN (
 		SELECT AC.Student_ID
         FROM Enroll AC
         WHERE AC.Course_ID = course_id
-    );
+    ) AND P.Role_ID = PR.Role_ID;
 END; //
 
 DELIMITER ;

@@ -52,6 +52,7 @@ export const Admin = () => {
       refreshCourses={refreshCourses}
       viewOnly={viewOnly}
       showWaitlist={false}
+      showStudents={false}
     />
   );
 };

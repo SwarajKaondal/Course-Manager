@@ -25,6 +25,7 @@ export const CommonPage = ({
   refreshCourses,
   viewOnly,
   showWaitlist,
+  showStudents,
 }: {
   courses: Course[];
   textbooks: Textbook[];
@@ -32,6 +33,7 @@ export const CommonPage = ({
   refreshCourses: () => void;
   viewOnly: Boolean;
   showWaitlist: Boolean;
+  showStudents: Boolean;
 }) => {
   const auth = useAuth();
   const [selectedTextbook, setSelectedTextbook] = useState<Number | undefined>(
@@ -121,6 +123,7 @@ export const CommonPage = ({
                     selectTextbook={setSelectedTextbook}
                     viewOnly={viewOnly}
                     showWaitlist={showWaitlist}
+                    showStudents={showStudents}
                   />
                 </div>
               ))}

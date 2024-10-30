@@ -49,6 +49,7 @@ export const Faculty = () => {
       refreshCourses={refreshCourses}
       viewOnly={viewOnly}
       showWaitlist={true}
+      showStudents={true}
     />
   );
 };
