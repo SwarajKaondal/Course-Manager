@@ -10,6 +10,8 @@ export const Admin = () => {
   const auth = useAuth();
   const viewOnly =
     auth.user?.role_name.toLowerCase() === "student" ? true : false;
+  const showWaitlist =
+    auth.user?.role_name.toLowerCase() === "faculty" ? true : false;
 
   const fetchCourses = async () => {
     const courses: Course[] = await PostRequest("/common/course", {
@@ -49,6 +51,7 @@ export const Admin = () => {
       refreshTextbooks={refreshTextbooks}
       refreshCourses={refreshCourses}
       viewOnly={viewOnly}
+      showWaitlist={false}
     />
   );
 };

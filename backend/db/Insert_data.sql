@@ -8,9 +8,9 @@ INSERT INTO person_role (Role_ID, Role_name) VALUES
 -- Insert data into Person
 INSERT INTO Person (User_ID, First_name, Last_name, Email, Password, Created_On, Role_ID) VALUES
 ('UtLo1024', 'Utraj', 'Loandal', 'utal69@example.com', 'admin', '2024-10-01', 1),
-('ErPe1024', 'Eric', 'Perrig', 'ez356@example.com', 'qwdmq', '2024-10-01', 2),
-('AlAr1024', 'Alice', 'Artho', 'aa23@edu.com', 'omdsws', '2024-10-02', 2),
-('BoTe1024', 'Bob', 'Temple', 'bt163@template.com', 'sak+=', '2024-10-03', 2),
+('ErPe1024', 'Eric', 'Perrig', 'ez356@example.com', 'qwdmq', '2024-10-01', 3),
+('AlAr1024', 'Alice', 'Artho', 'aa23@edu.com', 'omdsws', '2024-10-02', 3),
+('BoTe1024', 'Bob', 'Temple', 'bt163@template.com', 'sak+=', '2024-10-03', 3),
 ('LiGa1024', 'Lily', 'Gaddy', 'li123@example.edu', 'cnaos', '2024-10-04', 3),
 ('ArMo1024', 'Aria', 'Morrow', 'am213@example.edu', 'jwocals', '2024-10-05', 3),
 ('KeRh1024', 'Kellan', 'Rhodes', 'kr21@example.edu', 'camome', '2024-10-05', 3),

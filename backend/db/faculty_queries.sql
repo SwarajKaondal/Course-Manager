@@ -5,9 +5,11 @@ DROP PROCEDURE IF EXISTS faculty_view_worklist;
 DELIMITER //
 CREATE PROCEDURE faculty_view_worklist(IN course_id VARCHAR(255))
 BEGIN
-	SELECT W.Student_ID
-    FROM Waitlist W
-    WHERE W.Course_ID = course_id;
+	SELECT W.Student_ID, P.First_Name, P.Last_Name, P.email, PR.Role_Name, P.Role_ID
+    FROM Waitlist W, Person P, Person_Role PR
+    WHERE W.Course_ID = course_id
+    AND W.Student_ID = P.User_ID
+    AND P.Role_ID = PR.Role_ID;
 END; //
 DELIMITER ;
 

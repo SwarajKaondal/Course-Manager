@@ -224,3 +224,33 @@ class CourseList:
             "course_id": self.course_id,
             "title": self.title
         }
+
+class Person:
+    def __init__(self, user_id: str, first_name: str, last_name: str, email: str, role_name: str, role: int):
+        self.user_id = user_id
+        self.first_name = first_name
+        self.last_name = last_name
+        self.email = email
+        self.role_name = role_name
+        self.role = role
+
+    def to_dict(self):
+        return {
+            "user_id": self.user_id,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "email": self.email,
+            "role_name": self.role_name,
+            "role": self.role
+        }
+
+class Waitlist:
+    def __init__(self, course_id: str):
+        self.course_id = course_id
+        self.students: List[Person] = []
+
+    def to_dict(self):
+        return {
+            "course_id": self.course_id,
+            "students": [student.to_dict() for student in self.students]
+        }

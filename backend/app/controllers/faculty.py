@@ -1,6 +1,6 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 from db import call_procedure
-from model.model import CourseList
+from model.model import CourseList, Person, Waitlist
 
 faculty = Blueprint('faculty', __name__, url_prefix='/faculty')
 
@@ -11,8 +11,11 @@ def get_students():
 
 @faculty.route('/waitlist', methods=['POST'])
 def get_waitlist():
-    result = call_procedure('faculty_view_worklist', ['course_id'])
-    return jsonify(result), 200
+    results = call_procedure('faculty_view_worklist', ['course_id'])
+    waitlist = Waitlist(request.get_json()['course_id'])
+    for result in results[0]:
+        waitlist.students.append(Person(*result))
+    return jsonify(waitlist.to_dict()), 200
 
 @faculty.route('/approve', methods=['POST'])
 def approve_waitlist():

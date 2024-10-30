@@ -2,7 +2,7 @@ export interface User {
   first_name: String;
   last_name: String;
   email: String;
-  user_id: String;
+  user_id: string;
   role: number;
   role_name: String;
 }
@@ -82,11 +82,8 @@ export interface Score {
 }
 
 export interface Waitlist {
-  course: {
-    id: number;
-    name: String;
-  };
-  students: User;
+  course_id: String;
+  students: User[];
 }
 
 export interface Role {

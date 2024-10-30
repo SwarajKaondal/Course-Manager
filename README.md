@@ -5,13 +5,20 @@
 **Python version**: 3.12
 
 **Create venv:**
-python -m venv "venvzybook"
+`python -m venv "venvzybook"`
+
+**activate venv**: `venvzybooks/Scripts/activate`
+
+**Install requirements in venv**: `pip install -r .\requirements.txt`
 
 **Go to Backend>app folder**:
-cd backend/app
+`cd backend/app`
 
-**Run the app**: flask --app app run
+**Run the backend app**: `flask --app app run`
 
-**activate venv**: venvzybooks/Scripts/activate
+**Go to Frontend>app folder**:
+`cd frontend/`
 
-**Install requirements in venv**: pip install -r .\requirements.txt
+**Run the frontend app**:
+`npm install`
+`npm start`

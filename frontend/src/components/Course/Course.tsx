@@ -1,4 +1,4 @@
-import { Course, Textbook } from "../../models/models";
+import { Course, Textbook, Waitlist } from "../../models/models";
 import { styled } from "@mui/material/styles";
 import { format } from "date-fns";
 import AddIcon from "@mui/icons-material/Add";
@@ -21,6 +21,13 @@ import {
   DialogContent,
   DialogActions,
   Link,
+  TableContainer,
+  Paper,
+  TableHead,
+  TableRow,
+  TableCell,
+  Table,
+  TableBody,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useState } from "react";
@@ -32,14 +39,28 @@ export const CourseComponent = ({
   selectTextbook,
   refreshCourses,
   viewOnly,
+  showWaitlist,
 }: {
   course: Course;
   selectTextbook: React.Dispatch<React.SetStateAction<Number | undefined>>;
   refreshCourses: () => void;
   viewOnly: Boolean;
+  showWaitlist: Boolean;
 }) => {
   const [open, setOpen] = useState(false);
+  const [openWaitlist, setOpenWaitlist] = useState(false);
   const [textbookName, setTextbookName] = useState("");
+  const [waitlist, setWaitlist] = useState<Waitlist | null>(null);
+
+  const fetchWaitlist = async () => {
+    const response = await PostRequest("/faculty/waitlist", {
+      course_id: course.course_id,
+    });
+    if (response.ok) {
+      const data = (await response.json()) as Waitlist;
+      return data;
+    }
+  };
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -47,6 +68,18 @@ export const CourseComponent = ({
 
   const handleClose = () => {
     setOpen(false);
+  };
+
+  const handleClickOpenWaitlist = async () => {
+    const waitlist = await fetchWaitlist();
+    setWaitlist(waitlist ?? null);
+    if (waitlist !== null) {
+      setOpenWaitlist(true);
+    }
+  };
+
+  const handleCloseWaitlist = () => {
+    setOpenWaitlist(false);
   };
 
   const auth = useAuth();
@@ -62,6 +95,20 @@ export const CourseComponent = ({
       refreshCourses();
     }
     setOpen(false);
+  };
+
+  const handleApprove = async (student_id: string) => {
+    const response = await PostRequest("/faculty/approve", {
+      course_id: course.course_id,
+      student_id: student_id,
+    });
+    if (response.ok) {
+      fetchWaitlist().then((res) => {
+        if (res !== undefined) {
+          setWaitlist(res);
+        }
+      });
+    }
   };
 
   return (
@@ -123,7 +170,7 @@ export const CourseComponent = ({
               size="small"
               sx={{
                 marginBottom: 1,
-                display: viewOnly ? "none" : "",
+                display: viewOnly ? "" : "",
               }}
               onClick={handleClickOpen}
             >
@@ -141,6 +188,65 @@ export const CourseComponent = ({
             >
               {course.textbooks?.title}
             </Link>
+          )}
+
+          <Dialog open={openWaitlist} onClose={handleCloseWaitlist}>
+            <DialogTitle>Approve students</DialogTitle>
+            <DialogContent>
+              <TableContainer component={Paper}>
+                <Table sx={{}}>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell align="right">First Name</TableCell>
+                      <TableCell align="right">Last Name</TableCell>
+                      <TableCell align="right">Email</TableCell>
+                      <TableCell align="right">Approve</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {waitlist?.students.map((student, id) => (
+                      <TableRow key={id}>
+                        <TableCell align="right">
+                          {student.first_name}
+                        </TableCell>
+                        <TableCell align="right">{student.last_name}</TableCell>
+                        <TableCell align="right">{student.email}</TableCell>
+                        <TableCell align="right">
+                          <Button
+                            variant="contained"
+                            color="primary"
+                            size="small"
+                            onClick={() => handleApprove(student.user_id)}
+                          >
+                            Approve
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleCloseWaitlist} color="secondary">
+                Cancel
+              </Button>
+            </DialogActions>
+          </Dialog>
+          {showWaitlist && course.type.toLowerCase() === "active" && (
+            <Button
+              variant="outlined"
+              startIcon={<ExpandMoreIcon />}
+              size="small"
+              sx={{
+                marginBottom: 1,
+                marginTop: 1,
+                display: viewOnly ? "none" : "",
+              }}
+              onClick={handleClickOpenWaitlist}
+            >
+              View Waitlist
+            </Button>
           )}
         </CardContent>
       </Card>

@@ -18,3 +18,4 @@ htmlcov/
 # Editor-specific files
 .idea/
 .vscode/
+.zed/

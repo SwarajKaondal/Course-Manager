@@ -1,6 +1,6 @@
 import { Box, Paper, Typography } from "@mui/material";
 import { TextbookComponent } from "../components/Textbook/Textbook";
-import { Course, Textbook } from "../models/models";
+import { Course, Textbook, Waitlist } from "../models/models";
 import Grid from "@mui/material/Grid2";
 import { Header } from "../components/Header/Header";
 import { CourseComponent } from "../components/Course/Course";
@@ -12,12 +12,14 @@ export const CommonPage = ({
   refreshTextbooks,
   refreshCourses,
   viewOnly,
+  showWaitlist,
 }: {
   courses: Course[];
   textbooks: Textbook[];
   refreshTextbooks: () => void;
   refreshCourses: () => void;
   viewOnly: Boolean;
+  showWaitlist: Boolean;
 }) => {
   const [selectedTextbook, setSelectedTextbook] = useState<Number | undefined>(
     undefined,
@@ -72,6 +74,7 @@ export const CommonPage = ({
                     refreshCourses={refreshCourses}
                     selectTextbook={setSelectedTextbook}
                     viewOnly={viewOnly}
+                    showWaitlist={showWaitlist}
                   />
                 </div>
               ))}
