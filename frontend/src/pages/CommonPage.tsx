@@ -20,19 +20,19 @@ export const CommonPage = ({
   viewOnly: Boolean;
 }) => {
   const [selectedTextbook, setSelectedTextbook] = useState<Number | undefined>(
-    undefined
+    undefined,
   );
   const [textbook, setTextBook] = useState<Textbook | undefined>(undefined);
 
   useEffect(() => {
     setTextBook(
-      textbooks.find((textbook) => textbook.textbook_id === selectedTextbook)
+      textbooks.find((textbook) => textbook.textbook_id === selectedTextbook),
     );
   }, [selectedTextbook]);
 
   useEffect(() => {
     setTextBook(
-      textbooks.find((textbook) => textbook.textbook_id === selectedTextbook)
+      textbooks.find((textbook) => textbook.textbook_id === selectedTextbook),
     );
   }, [textbooks]);
 
@@ -96,7 +96,7 @@ export const CommonPage = ({
               <TextbookComponent
                 textbook={textbook}
                 refreshTextbooks={refreshTextbooks}
-                viewOnly={false}
+                viewOnly={viewOnly}
               />
             )}
             {textbook === undefined && (

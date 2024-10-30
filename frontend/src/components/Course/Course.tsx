@@ -92,18 +92,6 @@ export const CourseComponent = ({
             <br />
             Student Capacity: {course.course_capacity ?? "N/A"}
           </Typography>
-          <Button
-            variant="outlined"
-            startIcon={<AddIcon />}
-            size="small"
-            sx={{
-              marginBottom: 1,
-              display: viewOnly ? "none" : "",
-            }}
-            onClick={handleClickOpen}
-          >
-            Add Textbook
-          </Button>
 
           <Dialog open={open} onClose={handleClose}>
             <DialogTitle>Enter Textbook Name</DialogTitle>
@@ -128,31 +116,31 @@ export const CourseComponent = ({
               </Button>
             </DialogActions>
           </Dialog>
-
+          {course.textbooks === undefined && (
+            <Button
+              variant="outlined"
+              startIcon={<AddIcon />}
+              size="small"
+              sx={{
+                marginBottom: 1,
+                display: viewOnly ? "none" : "",
+              }}
+              onClick={handleClickOpen}
+            >
+              Add Textbook
+            </Button>
+          )}
           {course.textbooks !== undefined && (
-            <Accordion sx={{ boxShadow: "none", border: "none" }}>
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="panel1-content"
-                id="panel1-header"
-              >
-                Textbooks
-              </AccordionSummary>
-              <AccordionDetails>
-                <ol>
-                  <Link
-                    component="button"
-                    variant="body2"
-                    onClick={() => {
-                      selectTextbook(course.textbooks?.textbook_id);
-                    }}
-                    sx={{ cursor: "pointer" }}
-                  >
-                    {course.textbooks?.title}
-                  </Link>
-                </ol>
-              </AccordionDetails>
-            </Accordion>
+            <Link
+              component="button"
+              variant="body2"
+              onClick={() => {
+                selectTextbook(course.textbooks?.textbook_id);
+              }}
+              sx={{ cursor: "pointer" }}
+            >
+              {course.textbooks?.title}
+            </Link>
           )}
         </CardContent>
       </Card>

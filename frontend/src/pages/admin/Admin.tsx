@@ -8,6 +8,8 @@ export const Admin = () => {
   const [course_list, setCourseList] = useState<Course[]>([]);
   const [textbook_list, setTextbookList] = useState<Textbook[]>([]);
   const auth = useAuth();
+  const viewOnly =
+    auth.user?.role_name.toLowerCase() === "student" ? true : false;
 
   const fetchCourses = async () => {
     const courses: Course[] = await PostRequest("/common/course", {
@@ -46,7 +48,7 @@ export const Admin = () => {
       textbooks={textbook_list}
       refreshTextbooks={refreshTextbooks}
       refreshCourses={refreshCourses}
-      viewOnly={false}
+      viewOnly={viewOnly}
     />
   );
 };

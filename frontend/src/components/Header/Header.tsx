@@ -30,6 +30,7 @@ export const Header = () => {
 
   const handleLogout = () => {
     setAnchorEl(null);
+    auth.logout();
   };
 
   return (
@@ -41,13 +42,18 @@ export const Header = () => {
         {auth && (
           <div>
             <Chip
+              onClick={handleMenu}
               sx={{
                 fontSize: "1.25rem",
                 padding: "12px 20px",
                 height: "50px",
                 borderRadius: "18px",
               }}
-              avatar={<Avatar>M</Avatar>}
+              avatar={
+                <Avatar>
+                  {auth.user?.first_name[0] + "" + auth.user?.last_name[0]}
+                </Avatar>
+              }
               label={auth.user?.first_name + " " + auth.user?.last_name}
             />
             <Menu

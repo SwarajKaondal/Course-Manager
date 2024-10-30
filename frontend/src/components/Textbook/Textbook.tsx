@@ -205,6 +205,7 @@ export const TextbookComponent = ({
           sx={{ display: viewOnly ? "none" : "" }}
         >
           Add Chapter
+          {viewOnly ? "View Only" : ""}
         </Button>
       </Box>
       <Divider />
@@ -273,8 +274,7 @@ export const TextbookComponent = ({
                       }}
                     >
                       <Typography variant="h5">
-                        {chapter.chapter_number}.{section.section_number}{" "}
-                        {section.title}
+                        {section.section_number} {section.title}
                       </Typography>
                       <Box sx={{ ml: "auto" }}>
                         <Button
@@ -315,7 +315,6 @@ export const TextbookComponent = ({
                                 }}
                               >
                                 <Typography variant="h6">
-                                  {chapter.chapter_number}.
                                   {section.section_number}.
                                   {content.sequence_number}
                                 </Typography>
