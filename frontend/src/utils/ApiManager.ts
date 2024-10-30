@@ -1,8 +1,8 @@
-const BACKEND_URL = "http://127.0.0.1:5000";
+const BACKEND_URL = "http://127.0.0.1:5500";
 
 export const PostRequest = async (
   url: string,
-  data: any
+  data: any,
 ): Promise<Response> => {
   const fetchUrl = `${BACKEND_URL}${url}`;
   console.log(fetchUrl);

@@ -71,7 +71,7 @@ export const TextbookComponent = ({
   const handleAddSection = async (
     title: String,
     section_number: number,
-    chapter_id: number
+    chapter_id: number,
   ) => {
     const response = await PostRequest("/admin/add_section", {
       role: auth.user?.role,
@@ -86,7 +86,7 @@ export const TextbookComponent = ({
 
   const handleAddContentBlock = async (
     sequence_number: number,
-    section_id: number
+    section_id: number,
   ) => {
     const response = await PostRequest("/admin/add_content_block", {
       role: auth.user?.role,
@@ -143,28 +143,28 @@ export const TextbookComponent = ({
         handleAddSection(
           values["title"],
           Number(values["Section Number"]),
-          Number(extraFields["chapter_id"])
+          Number(extraFields["chapter_id"]),
         );
         break;
 
       case "content_block":
         handleAddContentBlock(
           Number(values["Sequence Number"]),
-          Number(extraFields["section_id"])
+          Number(extraFields["section_id"]),
         );
         break;
 
       case "text":
         handleAddTextBlock(
           values["Text"],
-          Number(extraFields["content_blk_id"])
+          Number(extraFields["content_blk_id"]),
         );
         break;
 
       case "picture":
         handleAddImage(
           values["Image path"],
-          Number(extraFields["content_blk_id"])
+          Number(extraFields["content_blk_id"]),
         );
         break;
 
@@ -176,7 +176,7 @@ export const TextbookComponent = ({
   const handleAddContent = (
     content: String,
     fields: string[],
-    extraFields: { [key: string]: string }
+    extraFields: { [key: string]: string },
   ) => {
     setContentType(content);
     setDialogFields(fields);
@@ -285,7 +285,7 @@ export const TextbookComponent = ({
                             handleAddContent(
                               "content_block",
                               ["Sequence Number"],
-                              { section_id: "" + section.section_id }
+                              { section_id: "" + section.section_id },
                             )
                           }
                           sx={{ display: viewOnly ? "none" : "" }}
@@ -354,7 +354,7 @@ export const TextbookComponent = ({
                                         {
                                           content_blk_id:
                                             "" + content.content_block_id,
-                                        }
+                                        },
                                       )
                                     }
                                     sx={{
@@ -374,7 +374,7 @@ export const TextbookComponent = ({
                                     color="primary"
                                     onClick={() =>
                                       handleCreateActivity(
-                                        content.content_block_id
+                                        content.content_block_id,
                                       )
                                     }
                                     sx={{
@@ -405,11 +405,21 @@ export const TextbookComponent = ({
                                     }}
                                   />
                                 )}
-                                {content.activity && (
-                                  <ActivityComponent
-                                    activity={content.activity}
-                                  />
-                                )}
+                                {content.activity !== undefined &&
+                                  content.activity !== null &&
+                                  content.activity.length > 0 && (
+                                    <ol>
+                                      {content.activity.map((activiy, i) => {
+                                        return (
+                                          <li key={"activity-" + i}>
+                                            <ActivityComponent
+                                              activity={activiy}
+                                            />
+                                          </li>
+                                        );
+                                      })}
+                                    </ol>
+                                  )}
                               </AccordionDetails>
                             </Accordion>
                           ))}

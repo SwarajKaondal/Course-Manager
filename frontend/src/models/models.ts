@@ -16,7 +16,7 @@ export interface Course {
   type: String;
   token: String | undefined;
   course_capacity: number | undefined;
-  textbooks: Textbook[] | undefined;
+  textbooks: Textbook | undefined;
 }
 
 export interface Textbook {
@@ -46,7 +46,7 @@ export interface Content_block {
   sequence_number: number;
   text_block: Text_block | undefined;
   image: Image | undefined;
-  activity: Activity | undefined;
+  activity: Activity[] | undefined;
 }
 
 export interface Image {

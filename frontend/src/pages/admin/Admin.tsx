@@ -10,8 +10,9 @@ export const Admin = () => {
   const auth = useAuth();
 
   const fetchCourses = async () => {
-    const courses: Course[] = await PostRequest("/common/textbooks", {
+    const courses: Course[] = await PostRequest("/common/course", {
       role_id: auth.user?.role,
+      user_id: auth.user?.user_id,
     }).then((response) => {
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);

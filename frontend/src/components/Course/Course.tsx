@@ -129,7 +129,7 @@ export const CourseComponent = ({
             </DialogActions>
           </Dialog>
 
-          {course.textbooks !== undefined && course.textbooks.length > 0 && (
+          {course.textbooks !== undefined && (
             <Accordion sx={{ boxShadow: "none", border: "none" }}>
               <AccordionSummary
                 expandIcon={<ExpandMoreIcon />}
@@ -140,20 +140,16 @@ export const CourseComponent = ({
               </AccordionSummary>
               <AccordionDetails>
                 <ol>
-                  {course.textbooks.map((textbook, i) => (
-                    <li key={i}>
-                      <Link
-                        component="button"
-                        variant="body2"
-                        onClick={() => {
-                          selectTextbook(textbook.textbook_id);
-                        }}
-                        sx={{ cursor: "pointer" }}
-                      >
-                        {textbook.title}
-                      </Link>
-                    </li>
-                  ))}
+                  <Link
+                    component="button"
+                    variant="body2"
+                    onClick={() => {
+                      selectTextbook(course.textbooks?.textbook_id);
+                    }}
+                    sx={{ cursor: "pointer" }}
+                  >
+                    {course.textbooks?.title}
+                  </Link>
                 </ol>
               </AccordionDetails>
             </Accordion>

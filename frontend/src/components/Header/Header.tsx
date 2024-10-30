@@ -12,14 +12,13 @@ import FormGroup from "@mui/material/FormGroup";
 import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
 import { Avatar, Chip } from "@mui/material";
+import { useAuth } from "../../provider/AuthProvider";
 
 export const Header = () => {
-  const [auth, setAuth] = React.useState(true);
+  const auth = useAuth();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setAuth(event.target.checked);
-  };
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {};
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -49,7 +48,7 @@ export const Header = () => {
                 borderRadius: "18px",
               }}
               avatar={<Avatar>M</Avatar>}
-              label="Mahesh Dalle - Admin"
+              label={auth.user?.first_name + " " + auth.user?.last_name}
             />
             <Menu
               id="menu-appbar"
