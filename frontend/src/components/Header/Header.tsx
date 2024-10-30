@@ -14,9 +14,14 @@ import Menu from "@mui/material/Menu";
 import { Avatar, Chip } from "@mui/material";
 import { useAuth } from "../../provider/AuthProvider";
 
-export const Header = () => {
+export const Header = ({
+  setChangePass,
+}: {
+  setChangePass: (val: boolean) => void;
+}) => {
   const auth = useAuth();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [showPassChangeDialog, setShowPassChangeDialog] = React.useState(false);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {};
 
@@ -72,6 +77,9 @@ export const Header = () => {
               onClose={handleClose}
             >
               <MenuItem onClick={handleLogout}>Logout</MenuItem>
+              <MenuItem onClick={() => setChangePass(true)}>
+                Change Password
+              </MenuItem>
             </Menu>
           </div>
         )}
