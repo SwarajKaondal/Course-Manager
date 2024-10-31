@@ -15,7 +15,7 @@ GET_SECTION = "SELECT Section_ID, Title, Section_Number FROM Section WHERE Chapt
 GET_CONTENT_BLOCK = "SELECT Content_BLK_ID, HIDDEN, Created_By, Sequence_Number FROM Content_Block WHERE Section_ID = %s"
 GET_IMAGE = "SELECT Image_ID, Path FROM Image WHERE Content_BLK_ID = %s"
 GET_TEXT_BLOCK = "SELECT Text_Blk_ID, Text FROM Text_Block WHERE Content_BLK_ID = %s"
-GET_ACTIVIY = "SELECT Activity_ID, Question FROM Activity WHERE Content_BLK_ID = %s"
+GET_ACTIVIY = "SELECT Activity_ID, Question, Question_ID, %s FROM Activity WHERE Content_BLK_ID = %s"
 GET_ANSWERS = "SELECT Answer_ID, Answer_Text, Answer_Explanation, Correct FROM Answer WHERE Activity_ID = %s"
 GET_FACULTY = "SELECT P.User_ID, P.First_Name, P.Last_Name, P.Email, R.Role_name, P.Role_ID FROM Person P, Person_Role R, Course C WHERE C.course_id = %s AND C.faculty = P.user_id AND P.Role_ID = R.Role_ID"
 
@@ -85,7 +85,7 @@ def get_courses():
                             content_block.text_block = text_block
 
                         # Fetch activities associated with the content block
-                        activities = execute_raw_sql(GET_ACTIVIY, (content_block.content_blk_id,))
+                        activities = execute_raw_sql(GET_ACTIVIY, (c.course_id, content_block.content_blk_id,))
                         for activity in activities:
                             activity = Activity(*activity)
 
@@ -114,3 +114,18 @@ def get_courses():
         course_list.append(c.to_dict())
 
     return jsonify(course_list), 200
+
+@common.route('/get_course_info', methods=['GET'])
+def get_course_info():
+    response = execute_raw_sql("Select C.Title, A.* from Active_course as A INNER JOIN Course C on A.Course_ID = C.Course_ID")
+    results = []
+    for res in response:
+        results.append(
+            {
+                "Title": res[0],  
+                "Course_Id": res[1],
+                "Token": res[2],
+                "Capacity": res[3],
+            }
+        )
+    return results

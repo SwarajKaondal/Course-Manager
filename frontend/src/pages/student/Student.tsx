@@ -41,14 +41,16 @@ export const Student = () => {
   }, []);
 
   return (
-    <CommonPage
-      courses={course_list}
-      textbooks={textbook_list}
-      refreshTextbooks={refreshTextbooks}
-      refreshCourses={refreshCourses}
-      viewOnly={true}
-      showWaitlist={false}
-      showStudents={false}
-    />
+    <>
+      <CommonPage
+        courses={course_list}
+        textbooks={textbook_list}
+        refreshTextbooks={refreshTextbooks}
+        refreshCourses={refreshCourses}
+        viewOnly={true}
+        showWaitlist={false}
+        showStudents={false}
+      />
+    </>
   );
 };
