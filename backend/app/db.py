@@ -107,3 +107,29 @@ def execute_query(query, params, success_msg):
     finally:
         cursor.close()
         conn.close()
+
+def save_score(query):
+    data = request.get_json()
+    user_id = data.get( 'user_id')
+    course_id = data.get('course_id')
+    question_id = data.get('question_id')
+    activity_id = data.get('activity_id')
+    score = data.get('score')
+
+    conn = connection_pool.get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(query, [user_id,course_id,question_id,activity_id,score])
+        result = cursor.fetchone()
+
+        if result and result[0] == 1:
+            conn.commit()
+            return jsonify({'message': 'Scores saved'}), 200
+
+    except mysql.connector.Error as err:
+        abort(500, description=f"Database error: {str(err)}")
+    except Exception as err:
+        abort(500, description=f"Error: {str(err)}")
+    finally:
+        cursor.close()
+        conn.close()

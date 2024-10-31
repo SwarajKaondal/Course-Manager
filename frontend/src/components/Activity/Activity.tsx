@@ -16,8 +16,8 @@ export const ActivityComponent = ({ activity }: { activity: Activity }) => {
   const [explanation, setExplanation] = useState<string | null>(null);
   const auth = useAuth();
 
-  const saveAnswer = async (score: number) => {
-    const response = await PostRequest("/student/save_answer", {
+  const saveScore = async (score: number) => {
+    const response = await PostRequest("/student/save_score", {
       role: auth.user?.role,
       user_id: auth.user?.user_id,
       activity_id: activity.activity_id,
@@ -42,7 +42,7 @@ export const ActivityComponent = ({ activity }: { activity: Activity }) => {
     if (answer?.correct == 1) {
       score = 3;
     }
-    saveAnswer(score);
+    saveScore(score);
   };
 
   return (

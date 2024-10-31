@@ -13,8 +13,8 @@ DROP TABLE IF EXISTS Waitlist;
 DROP TABLE IF EXISTS Active_Course;
 DROP TABLE IF EXISTS Section;
 DROP TABLE IF EXISTS Chapter;
-DROP TABLE IF EXISTS Textbook;
 DROP TABLE IF EXISTS Course;
+DROP TABLE IF EXISTS Textbook;
 DROP TABLE IF EXISTS Person;
 DROP TABLE IF EXISTS Person_Role;
 
@@ -204,9 +204,11 @@ CREATE TABLE Notification (
 CREATE TABLE Score (
     User_ID VARCHAR(50),
     Course_ID VARCHAR(50),
+    Question_ID VARCHAR(3),
     Activity_ID INT,
     TStamp DATETIME NOT NULL,
     Score INT NOT NULL,
+    PRIMARY KEY (User_ID, Activity_ID, Question_ID),
     FOREIGN KEY (User_ID) REFERENCES Person(User_ID)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
