@@ -4,22 +4,22 @@ from db import execute_query
 admin = Blueprint('admin', __name__, url_prefix='/admin')
 
 CREATE_FACULTY = "SELECT create_faculty(%s, %s, %s, %s, %s)"
-CREATE_TEXTBOOK = "SELECT create_textbook(%s, %s, %s)"
+CREATE_TEXTBOOK = "SELECT create_textbook(%s, %s)"
 ADD_CHAPTER = "SELECT add_chapter(%s, %s, %s, %s)"
 ADD_SECTION = "SELECT add_section(%s, %s, %s, %s)"
 ADD_CONTENT_BLOCK = "SELECT add_content_block(%s, %s, %s, %s)"
 ADD_TEXT = "SELECT add_text(%s, %s, %s)"
 ADD_PICTURE = "SELECT add_picture(%s, %s, %s)"
 ADD_ACTIVITY = "SELECT add_activity(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-ADD_ACTIVE_COURSE = "SELECT add_active_course(%s, %s, %s, %s, %s, %s, %s, %s)"
-ADD_EVAL_COURSE = "SELECT add_eval_course(%s, %s, %s, %s, %s, %s)"
+ADD_ACTIVE_COURSE = "SELECT add_active_course(%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+ADD_EVAL_COURSE = "SELECT add_eval_course(%s, %s, %s, %s, %s, %s, %s)"
 
 
 @admin.route('/create_faculty', methods=['POST'])
 def create_faculty():
 
     return execute_query(CREATE_FACULTY,
-                  ['role','first_name','last_name','email','user_password'],
+                  ['role','first_name','last_name','email','password'],
                   "Faculty created successfully")
 
 
@@ -27,7 +27,7 @@ def create_faculty():
 def create_textbook():
 
     return execute_query(CREATE_TEXTBOOK,
-                  ['role','title','course_id'],
+                  ['role','title'],
                   "Textbook created successfully")
 
 @admin.route('/add_chapter', methods=['POST'])
@@ -77,13 +77,12 @@ def add_activity():
 @admin.route('/add_active_course', methods=['POST'])
 def add_active_course():
     return execute_query(ADD_ACTIVE_COURSE,
-                  ['role', 'course_id', 'course_name', 'faculty', 'start_date', 'end_date', 'token', 'course_cap'],
+                  ['role', 'course_id', 'course_name', 'faculty', 'start_date', 'end_date', 'textbook_id', 'token', 'course_cap'],
                   "Active course added successfully")
 
 
 @admin.route('/add_eval_course', methods=['POST'])
 def add_eval_course():
     return execute_query(ADD_EVAL_COURSE,
-                  ['role', 'course_id', 'course_name', 'faculty', 'start_date', 'end_date'],
+                  ['role', 'course_id', 'course_name', 'faculty', 'start_date', 'end_date', 'textbook_id'],
                   "Evaluation course added successfully")
-

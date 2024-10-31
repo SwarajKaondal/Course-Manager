@@ -35,7 +35,7 @@ END#
 -- 3. create_textbook
 DELIMITER #
 DROP FUNCTION IF EXISTS create_textbook#
-CREATE FUNCTION create_textbook(user_role_id INT, title VARCHAR(255), course_id VARCHAR(50))
+CREATE FUNCTION create_textbook(user_role_id INT, title VARCHAR(255))
 	RETURNS INT
     DETERMINISTIC
 BEGIN
@@ -43,8 +43,8 @@ BEGIN
     SELECT role_id INTO admin_role_id FROM Person_Role WHERE Role_name = 'Admin';
     
     IF user_role_id = admin_role_id THEN
-		INSERT INTO Textbook (Title, Course_ID) VALUES
-			(title, course_id);
+		INSERT INTO Textbook (Title) VALUES
+			(title);
 		RETURN 1;
     ELSE
 		SIGNAL SQLSTATE '45000'
@@ -222,7 +222,7 @@ END#
 -- 10. add_active_course
 DELIMITER #
 DROP FUNCTION IF EXISTS add_active_course#
-CREATE FUNCTION add_active_course(user_role_id INT, course_id VARCHAR(50), course_name VARCHAR(255), faculty VARCHAR(50), start_date DATE, end_date DATE, token VARCHAR(255), course_cap INT)
+CREATE FUNCTION add_active_course(user_role_id INT, course_id VARCHAR(50), course_name VARCHAR(255), faculty VARCHAR(50), start_date DATE, end_date DATE, Textbook_ID INT, token VARCHAR(255), course_cap INT)
 	RETURNS INT
     DETERMINISTIC
 BEGIN
@@ -230,8 +230,8 @@ BEGIN
     SELECT role_id INTO admin_role_id FROM Person_Role WHERE Role_name = 'Admin';
     
 	IF user_role_id = admin_role_id THEN
-		INSERT INTO Course(Course_ID, Title, Faculty, Start_Date, End_Date, Type) VALUES
-			(course_id, course_name, faculty, start_date, end_date, 'ACTIVE');
+		INSERT INTO Course(Course_ID, Title, Faculty, Start_Date, End_Date, Type, Textbook_ID) VALUES
+			(course_id, course_name, faculty, start_date, end_date, 'ACTIVE',Textbook_ID);
 		
 		INSERT INTO Active_Course(Course_ID, Token, Course_Capacity)
 		VALUES(course_id, token, course_cap);
@@ -248,7 +248,7 @@ END#
 -- 11. add_eval_course
 DELIMITER #
 DROP FUNCTION IF EXISTS add_eval_course#
-CREATE FUNCTION add_eval_course(user_role_id INT, course_id VARCHAR(50), course_name VARCHAR(255), faculty VARCHAR(50), start_date DATE, end_date DATE)
+CREATE FUNCTION add_eval_course(user_role_id INT, course_id VARCHAR(50), course_name VARCHAR(255), faculty VARCHAR(50), start_date DATE, end_date DATE, Textbook_ID INT)
 	RETURNS INT
     DETERMINISTIC
 BEGIN
@@ -256,8 +256,8 @@ BEGIN
     SELECT role_id INTO admin_role_id FROM Person_Role WHERE Role_name = 'Admin';
     
 	IF user_role_id = admin_role_id THEN
-		INSERT INTO Course(Course_ID, Title, Faculty, Start_Date, End_Date, Type) VALUES
-			(course_id, course_name, faculty, start_date, end_date, 'EVALUATION');
+		INSERT INTO Course(Course_ID, Title, Faculty, Start_Date, End_Date, Type, Textbook_ID) VALUES
+			(course_id, course_name, faculty, start_date, end_date, 'EVALUATION', Textbook_ID);
 
 		RETURN 1;
     ELSE

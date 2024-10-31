@@ -36,5 +36,5 @@ def get_courses():
 
 @faculty.route('/ta', methods=['POST'])
 def add_ta():
-    result = call_procedure('faculty_add_ta', ['user_role_id', 'first_name', 'last_name', 'email', 'default_password','course_id'])
+    result = call_procedure('faculty_add_ta', ['user_role_id', 'first_name', 'last_name', 'email', 'password','course_id'])
     return jsonify(result), 200

@@ -79,4 +79,25 @@ BEGIN
 
 END #
 
+DROP PROCEDURE IF EXISTS student_score;
+DELIMITER //
+CREATE PROCEDURE student_score(IN user_id VARCHAR(8))
+BEGIN
+	DECLARE total INT;
+    DECLARE total_score INT;
 
+	select count(*)*3 into total from Enroll E
+	inner join Course C on E.Course_ID = C.Course_ID
+	inner join Textbook T on C.Textbook_ID = T.Textbook_ID
+	inner join Chapter CH on CH.Textbook_ID = T.Textbook_ID 
+	inner join Section S on S.Chapter_ID = CH.Chapter_ID
+	inner join Content_Block CB on CB.Section_ID = S.Section_ID
+	inner join Activity A on A.Content_BLK_ID = CB.Content_BLK_ID
+	where E.Student_ID = user_id;
+
+	select sum(S.score) into total_score from Score S where S.User_ID = user_id group by S.user_id;
+    
+    select total, total_score;
+    
+END; //
+DELIMITER ;
