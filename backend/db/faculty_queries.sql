@@ -13,35 +13,84 @@ BEGIN
 END; //
 DELIMITER ;
 
-DELIMITER //
+
 DROP TRIGGER IF EXISTS after_enroll_insert;
+DELIMITER //
+
 CREATE TRIGGER after_enroll_insert
 AFTER INSERT ON ENROLL
 FOR EACH ROW
 BEGIN
-    DECLARE enrolled_count INT;
-    DECLARE course_capacity INT;
+    DECLARE enrolled_count INT DEFAULT 0;
+    DECLARE course_capacity INT DEFAULT 0;
 
     -- Get the current number of students enrolled in the course
     SELECT COUNT(*) 
     INTO enrolled_count 
     FROM ENROLL
     WHERE Course_ID = NEW.Course_ID;
+    
+    
 
     -- Get the capacity of the course
     SELECT Course_Capacity 
     INTO course_capacity
     FROM Active_Course AC
     WHERE AC.Course_ID = NEW.Course_ID;
+    
+    
 
     -- Check if the capacity is reached
     IF enrolled_count >= course_capacity THEN
-        -- Delete all students from the waitlist for the course
-        DELETE FROM Waitlist 
-        WHERE Course_ID = NEW.Course_ID;
+        -- Call procedure to notify students on the waitlist and remove them
+        
+        CALL send_course_full_notification(NEW.Course_ID);
+        
+        DELETE FROM Waitlist WHERE Course_ID = NEW.Course_ID;
+        
+        
     END IF;
 END; //
 DELIMITER ;
+
+DROP PROCEDURE IF EXISTS send_course_full_notification;
+DELIMITER //
+
+CREATE PROCEDURE send_course_full_notification(IN course_id VARCHAR(255))
+BEGIN
+    DECLARE done INT DEFAULT FALSE;
+    DECLARE student_id VARCHAR(255);
+
+    -- Cursor to select students from the Waitlist table for the specified course_id
+    DECLARE waitlist_cursor CURSOR FOR SELECT W.student_id FROM Waitlist W WHERE W.Course_ID = course_id;
+
+    -- Handler to exit loop when no more rows are found in the cursor
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+
+    -- Open cursor
+    OPEN waitlist_cursor;
+
+    -- Loop through each student in the cursor
+    read_loop: LOOP
+        FETCH waitlist_cursor INTO student_id;
+
+        IF done THEN
+            LEAVE read_loop;
+        END IF;
+
+        -- Check that student_id is not NULL before inserting
+        IF student_id IS NOT NULL THEN
+            -- Insert notification for each student on the waitlist
+            INSERT INTO Notification (Notification_Text, User_Id) 
+            VALUES (CONCAT('Course ', course_id, ' is full; you have been removed from the waitlist.'), student_id);
+        END IF;
+    END LOOP;
+
+    -- Close cursor after processing
+    CLOSE waitlist_cursor;
+END; //
+DELIMITER ;
+
 
 -- Procedure to approve enrollments
 DROP PROCEDURE IF EXISTS faculty_approve_student;

@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from db import call_procedure, execute_raw_sql
-from model.model import Role, Textbook, Course, Chapter, Section, ContentBlock, Image, TextBlock, Activity, Answer, Faculty
+from model.model import Notification, Role, Textbook, Course, Chapter, Section, ContentBlock, Image, TextBlock, Activity, Answer, Faculty
 
 common = Blueprint('common', __name__, url_prefix='/common')
 
@@ -122,7 +122,7 @@ def get_course_info():
     for res in response:
         results.append(
             {
-                "Title": res[0],  
+                "Title": res[0],
                 "Course_Id": res[1],
                 "Token": res[2],
                 "Capacity": res[3],
@@ -142,3 +142,11 @@ def get_textbook_info():
             }
         )
     return results
+  
+@common.route('/notification', methods=['POST'])
+def get_notifications():
+    result = call_procedure('person_notification', ['user_id'])
+    notifications = []
+    for row in result[0]:
+        notifications.append(row[0])
+    return jsonify(notifications), 200
