@@ -61,6 +61,8 @@ export interface Text_block {
 
 export interface Activity {
   activity_id: number;
+  question_id: String;
+  course_id: String;
   question: String;
   answer1: Answer;
   answer2: Answer;

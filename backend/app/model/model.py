@@ -67,9 +67,11 @@ class Image:
 
 
 class Activity:
-    def __init__(self, activity_id: int, question: str):
+    def __init__(self, activity_id: int, question: str, question_id: str, course_id: str):
         self.activity_id = activity_id
         self.question = question
+        self.question_id = question_id
+        self.course_id = course_id
         self.answer1: Answer | None = None
         self.answer2: Answer | None = None
         self.answer3: Answer | None = None
@@ -79,6 +81,8 @@ class Activity:
         return {
             "activity_id": self.activity_id,
             "question": self.question,
+            "question_id": self.question_id,
+            "course_id": self.course_id,
             "answer1": self.answer1.to_dict() if self.answer1 else None,
             "answer2": self.answer2.to_dict() if self.answer2 else None,
             "answer3": self.answer3.to_dict() if self.answer3 else None,

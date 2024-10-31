@@ -6,6 +6,12 @@ import {
   DialogContent,
   DialogTitle,
   Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
   TextField,
   Typography,
 } from "@mui/material";
@@ -16,7 +22,14 @@ import { Header } from "../components/Header/Header";
 import { CourseComponent } from "../components/Course/Course";
 import { useEffect, useState } from "react";
 import { useAuth } from "../provider/AuthProvider";
-import { PostRequest } from "../utils/ApiManager";
+import { GetRequest, PostRequest } from "../utils/ApiManager";
+
+interface CourseInfo {
+  Title: String;
+  Course_Id: String;
+  Token: String;
+  Capacity: number;
+}
 
 export const CommonPage = ({
   courses,
@@ -37,8 +50,10 @@ export const CommonPage = ({
 }) => {
   const auth = useAuth();
   const [selectedTextbook, setSelectedTextbook] = useState<Number | undefined>(
-    undefined,
+    undefined
   );
+  const [allCourses, setAllCourses] = useState<CourseInfo[]>([]);
+
   const [textbook, setTextBook] = useState<Textbook | undefined>(undefined);
   const [showChangePass, setChangePass] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
@@ -76,15 +91,40 @@ export const CommonPage = ({
 
   useEffect(() => {
     setTextBook(
-      textbooks.find((textbook) => textbook.textbook_id === selectedTextbook),
+      textbooks.find((textbook) => textbook.textbook_id === selectedTextbook)
     );
   }, [selectedTextbook]);
 
   useEffect(() => {
     setTextBook(
-      textbooks.find((textbook) => textbook.textbook_id === selectedTextbook),
+      textbooks.find((textbook) => textbook.textbook_id === selectedTextbook)
     );
   }, [textbooks]);
+
+  useEffect(() => {
+    fetchAllCourses();
+  }, []);
+
+  const [openCourseList, setOpenCourseList] = useState(false);
+
+  const fetchAllCourses = async () => {
+    const courses: CourseInfo[] = await GetRequest(
+      "/common/get_course_info"
+    ).then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    });
+    setAllCourses(courses);
+  };
+
+  const handleEnroll = async (email: String, course_token: String) => {
+    const response = await PostRequest("/student/enroll", {
+      email: email,
+      course_token: course_token,
+    });
+  };
 
   return (
     <Box
@@ -94,6 +134,80 @@ export const CommonPage = ({
       }}
     >
       <Header setChangePass={setChangePass} />
+
+      {auth.user?.role_name === "Student" && (
+        <>
+          <Button
+            variant="outlined"
+            size="small"
+            sx={{
+              marginBottom: 1,
+              marginTop: 2,
+              marginLeft: 2,
+            }}
+            onClick={() => setOpenCourseList(true)}
+          >
+            Show Courses
+          </Button>
+          <Dialog
+            sx={{
+              "& .MuiDialog-paper": {
+                minWidth: "400px",
+              },
+              textAlign: "center",
+            }}
+            open={openCourseList}
+            onClose={() => setOpenCourseList(false)}
+          >
+            <DialogTitle>Course List</DialogTitle>
+            <DialogContent>
+              <TableContainer component={Paper}>
+                <Table sx={{}}>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell align="right">Course Name</TableCell>
+                      <TableCell align="right">Course Id</TableCell>
+                      <TableCell align="right">Enroll</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {allCourses?.map((course, id) => (
+                      <TableRow key={id}>
+                        <TableCell align="right">{course.Title}</TableCell>
+                        <TableCell align="right">{course.Course_Id}</TableCell>
+                        <TableCell align="right">
+                          <Button
+                            variant="contained"
+                            color="primary"
+                            size="small"
+                            onClick={() =>
+                              handleEnroll(
+                                auth.user !== null ? auth.user.email : "",
+                                course.Token as String
+                              )
+                            }
+                          >
+                            Enroll
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </DialogContent>
+            <DialogActions>
+              <Button
+                onClick={() => setOpenCourseList(false)}
+                color="secondary"
+              >
+                Cancel
+              </Button>
+            </DialogActions>
+          </Dialog>
+        </>
+      )}
+
       <Grid
         sx={{
           flexGrow: 1,

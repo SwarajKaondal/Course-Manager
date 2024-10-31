@@ -189,7 +189,7 @@ INSERT INTO Score (User_ID, Activity_ID, Question_ID, Course_ID, TStamp, Score) 
 ('BoTe1024', 1, 'Q1', 'NCSUOganCSC440F24', '2024.08.01-09:24', 0),
 ('LiGa1024', 1, 'Q1', 'NCSUOganCSC440F24', '2024.08.01-07:45', 3),
 ('LiGa1024', 2, 'Q2', 'NCSUOganCSC440F24', '2024.08.01-12:30', 3),
--- ('LiGa1024', 1, 'Q1', 'NCSUOganCSC540F24', '2024.08.03-16:52', 3), diff course id
+('LiGa1024', 1, 'Q1', 'NCSUOganCSC540F24', '2024.08.03-16:52', 3),
 ('ArMo1024', 1, 'Q1', 'NCSUOganCSC440F24', '2024.08.01-21:18', 1),
 ('ArMo1024', 2, 'Q2', 'NCSUOganCSC440F24', '2024.08.01-05:03', 3),
 ('FiWi1024', 4, 'Q1', 'NCSUSaraCSC326F24', '2024.08.29-22:41', 1),

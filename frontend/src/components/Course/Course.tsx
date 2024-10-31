@@ -216,43 +216,59 @@ export const CourseComponent = ({
             </Link>
           )}
 
-          <Dialog open={openWaitlist} onClose={handleCloseWaitlist}>
+          <Dialog
+            sx={{
+              "& .MuiDialog-paper": {
+                minWidth: "400px",
+              },
+              textAlign: "center",
+            }}
+            open={openWaitlist}
+            onClose={handleCloseWaitlist}
+          >
             <DialogTitle>Approve students</DialogTitle>
-            <DialogContent>
-              <TableContainer component={Paper}>
-                <Table sx={{}}>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell align="right">First Name</TableCell>
-                      <TableCell align="right">Last Name</TableCell>
-                      <TableCell align="right">Email</TableCell>
-                      <TableCell align="right">Approve</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {waitlist?.students.map((student, id) => (
-                      <TableRow key={id}>
-                        <TableCell align="right">
-                          {student.first_name}
-                        </TableCell>
-                        <TableCell align="right">{student.last_name}</TableCell>
-                        <TableCell align="right">{student.email}</TableCell>
-                        <TableCell align="right">
-                          <Button
-                            variant="contained"
-                            color="primary"
-                            size="small"
-                            onClick={() => handleApprove(student.user_id)}
-                          >
-                            Approve
-                          </Button>
-                        </TableCell>
+            {waitlist?.students && waitlist?.students.length === 0 && (
+              <Typography variant="h6">No Students in waitlist!</Typography>
+            )}
+            {waitlist?.students && waitlist?.students.length > 0 && (
+              <DialogContent>
+                <TableContainer component={Paper}>
+                  <Table sx={{}}>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell align="right">First Name</TableCell>
+                        <TableCell align="right">Last Name</TableCell>
+                        <TableCell align="right">Email</TableCell>
+                        <TableCell align="right">Approve</TableCell>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </DialogContent>
+                    </TableHead>
+                    <TableBody>
+                      {waitlist?.students.map((student, id) => (
+                        <TableRow key={id}>
+                          <TableCell align="right">
+                            {student.first_name}
+                          </TableCell>
+                          <TableCell align="right">
+                            {student.last_name}
+                          </TableCell>
+                          <TableCell align="right">{student.email}</TableCell>
+                          <TableCell align="right">
+                            <Button
+                              variant="contained"
+                              color="primary"
+                              size="small"
+                              onClick={() => handleApprove(student.user_id)}
+                            >
+                              Approve
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </DialogContent>
+            )}
             <DialogActions>
               <Button onClick={handleCloseWaitlist} color="secondary">
                 Cancel
@@ -260,48 +276,66 @@ export const CourseComponent = ({
             </DialogActions>
           </Dialog>
           {showWaitlist && course.type.toLowerCase() === "active" && (
-            <Button
-              variant="outlined"
-              startIcon={<ExpandMoreIcon />}
-              size="small"
-              sx={{
-                marginBottom: 1,
-                marginTop: 1,
-                display: viewOnly ? "none" : "",
-              }}
-              onClick={handleClickOpenWaitlist}
-            >
-              View Waitlist
-            </Button>
+            <>
+              <br />
+              <Button
+                variant="outlined"
+                size="small"
+                sx={{
+                  marginBottom: 1,
+                  marginTop: 1,
+                  display: viewOnly ? "none" : "",
+                }}
+                onClick={handleClickOpenWaitlist}
+              >
+                View Waitlist
+              </Button>
+            </>
           )}
-          <Dialog open={openStudents} onClose={handleCloseStudents}>
+          <Dialog
+            sx={{
+              "& .MuiDialog-paper": {
+                minWidth: "400px",
+              },
+              textAlign: "center",
+            }}
+            open={openStudents}
+            onClose={handleCloseStudents}
+          >
             <DialogTitle>View Students</DialogTitle>
-            <DialogContent>
-              <TableContainer component={Paper}>
-                <Table sx={{}}>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell align="right">Student Id</TableCell>
-                      <TableCell align="right">First Name</TableCell>
-                      <TableCell align="right">Last Name</TableCell>
-                      <TableCell align="right">Email</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {students?.map((student, id) => (
-                      <TableRow key={id}>
-                        <TableCell align="right">{student.user_id}</TableCell>
-                        <TableCell align="right">
-                          {student.first_name}
-                        </TableCell>
-                        <TableCell align="right">{student.last_name}</TableCell>
-                        <TableCell align="right">{student.email}</TableCell>
+            {students.length === 0 && (
+              <Typography variant="h6">No Students enrolled!</Typography>
+            )}
+            {students.length > 0 && (
+              <DialogContent>
+                <TableContainer component={Paper}>
+                  <Table sx={{}}>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell align="right">Student Id</TableCell>
+                        <TableCell align="right">First Name</TableCell>
+                        <TableCell align="right">Last Name</TableCell>
+                        <TableCell align="right">Email</TableCell>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </DialogContent>
+                    </TableHead>
+                    <TableBody>
+                      {students?.map((student, id) => (
+                        <TableRow key={id}>
+                          <TableCell align="right">{student.user_id}</TableCell>
+                          <TableCell align="right">
+                            {student.first_name}
+                          </TableCell>
+                          <TableCell align="right">
+                            {student.last_name}
+                          </TableCell>
+                          <TableCell align="right">{student.email}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </DialogContent>
+            )}
             <DialogActions>
               <Button onClick={handleCloseStudents} color="secondary">
                 Cancel
@@ -311,7 +345,6 @@ export const CourseComponent = ({
           {showStudents && course.type.toLowerCase() === "active" && (
             <Button
               variant="outlined"
-              startIcon={<ExpandMoreIcon />}
               size="small"
               sx={{
                 marginBottom: 1,

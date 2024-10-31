@@ -208,7 +208,7 @@ CREATE TABLE Score (
     Activity_ID INT,
     TStamp DATETIME NOT NULL,
     Score INT NOT NULL,
-    PRIMARY KEY (User_ID, Activity_ID, Question_ID),
+    PRIMARY KEY (User_ID, Activity_ID, Question_ID, Course_ID),
     FOREIGN KEY (User_ID) REFERENCES Person(User_ID)
         ON DELETE CASCADE
         ON UPDATE CASCADE,

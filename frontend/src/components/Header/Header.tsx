@@ -59,7 +59,13 @@ export const Header = ({
                   {auth.user?.first_name[0] + "" + auth.user?.last_name[0]}
                 </Avatar>
               }
-              label={auth.user?.first_name + " " + auth.user?.last_name}
+              label={
+                auth.user?.first_name +
+                " " +
+                auth.user?.last_name +
+                " - " +
+                auth.user?.role_name
+              }
             />
             <Menu
               id="menu-appbar"

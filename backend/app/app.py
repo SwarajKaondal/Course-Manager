@@ -3,6 +3,7 @@ from flask import Flask
 from flask_cors import CORS
 from dotenv import load_dotenv
 load_dotenv()
+from controllers.student import student
 from controllers.person import person
 from controllers.faculty import faculty
 from controllers.admin import admin
@@ -20,3 +21,4 @@ app.register_blueprint(faculty)
 app.register_blueprint(admin)
 app.register_blueprint(common)
 app.register_blueprint(teachingAssistant)
+app.register_blueprint(student)
