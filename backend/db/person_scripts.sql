@@ -46,6 +46,18 @@ END;
 //
 DELIMITER ;
 
+-- Procedure to get notifications
+DROP PROCEDURE IF EXISTS person_notification;
+DELIMITER //
+CREATE PROCEDURE person_notification(IN user_id VARCHAR(255))
+BEGIN
+	SELECT N.Notification_Text FROM Notification N WHERE N.User_ID = user_id;
+    
+    DELETE FROM Notification N WHERE N.User_ID = user_id;
+END; //
+
+DELIMITER ;
+
 
 
 

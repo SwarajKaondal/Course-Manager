@@ -258,3 +258,12 @@ class Waitlist:
             "course_id": self.course_id,
             "students": [student.to_dict() for student in self.students]
         }
+
+class Notification:
+    def __init__(self, user_id: str, message: List[str]):
+        self.message: List[str] = message
+
+    def to_dict(self):
+        return {
+            "messages": [message for message in self.message]
+        }
