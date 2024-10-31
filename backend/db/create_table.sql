@@ -17,6 +17,7 @@ DROP TABLE IF EXISTS Course;
 DROP TABLE IF EXISTS Textbook;
 DROP TABLE IF EXISTS Person;
 DROP TABLE IF EXISTS Person_Role;
+DROP TABLE IF EXISTS Debug_Log;
 
 
 CREATE TABLE Person_Role (
@@ -193,8 +194,8 @@ CREATE TABLE Teaching_Assistant (
 );
 
 CREATE TABLE Notification (
-    Notification_ID INT PRIMARY KEY,
-    Text VARCHAR(255) NOT NULL,
+    Notification_ID INT PRIMARY KEY AUTO_INCREMENT,
+    Notification_Text Text NOT NULL,
     User_ID VARCHAR(50) NOT NULL,
     FOREIGN KEY (User_ID) REFERENCES Person(User_ID)
 		ON DELETE CASCADE
