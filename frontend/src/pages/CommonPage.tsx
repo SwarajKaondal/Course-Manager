@@ -23,6 +23,9 @@ import { CourseComponent } from "../components/Course/Course";
 import { useEffect, useState } from "react";
 import { useAuth } from "../provider/AuthProvider";
 import { GetRequest, PostRequest } from "../utils/ApiManager";
+import { AddFaculty } from "../components/AddPerson/AddFaculty";
+import { AddCourse } from "../components/Course/AddCourse";
+import { AddTextbook } from "../components/Textbook/AddTextbook";
 
 interface CourseInfo {
   Title: String;
@@ -53,7 +56,6 @@ export const CommonPage = ({
     undefined
   );
   const [allCourses, setAllCourses] = useState<CourseInfo[]>([]);
-
   const [textbook, setTextBook] = useState<Textbook | undefined>(undefined);
   const [showChangePass, setChangePass] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
@@ -62,9 +64,21 @@ export const CommonPage = ({
   const isFormValid =
     currentPassword && newPassword && newPassword === confirmPassword;
 
+  const setSelectedTextbookForCourse = (
+    textbook_id: number,
+    course_id: String
+  ) => {
+    setTextBook(
+      textbooks.find(
+        (textbook) =>
+          textbook.textbook_id === textbook_id &&
+          textbook.course_id == course_id
+      )
+    );
+  };
+
   const handlePasswordChange = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Add logic to handle the password change here
 
     const changePassData = {
       user_id: auth.user?.user_id,
@@ -135,6 +149,14 @@ export const CommonPage = ({
     >
       <Header setChangePass={setChangePass} />
 
+      {auth.user?.role_name === "Admin" && (
+        <>
+          <AddFaculty />
+          <AddTextbook />
+          <AddCourse courseType="active" />
+          <AddCourse courseType="evaluation" />
+        </>
+      )}
       {auth.user?.role_name === "Student" && (
         <>
           <Button
@@ -234,7 +256,7 @@ export const CommonPage = ({
                   <CourseComponent
                     course={course}
                     refreshCourses={refreshCourses}
-                    selectTextbook={setSelectedTextbook}
+                    selectTextbook={setSelectedTextbookForCourse}
                     viewOnly={viewOnly}
                     showWaitlist={showWaitlist}
                     showStudents={showStudents}

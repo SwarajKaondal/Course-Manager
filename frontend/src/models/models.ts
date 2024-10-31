@@ -22,6 +22,7 @@ export interface Course {
 export interface Textbook {
   textbook_id: number;
   title: String;
+  course_id: String;
   chapters: Chapter[] | undefined;
 }
 

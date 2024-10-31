@@ -1,23 +1,16 @@
 import { Course, Textbook, User, Waitlist } from "../../models/models";
 import { styled } from "@mui/material/styles";
 import { format } from "date-fns";
-import AddIcon from "@mui/icons-material/Add";
 import Grid from "@mui/material/Grid2";
 import {
-  Badge,
   Card,
   CardContent,
   Typography,
   Chip,
-  CardActions,
   Button,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
   Container,
   Dialog,
   DialogTitle,
-  TextField,
   DialogContent,
   DialogActions,
   Link,
@@ -29,10 +22,9 @@ import {
   Table,
   TableBody,
 } from "@mui/material";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useState } from "react";
 import { PostRequest } from "../../utils/ApiManager";
-import { useAuth } from "../../provider/AuthProvider";
+import { AddTa } from "../AddPerson/AddTa";
 
 export const CourseComponent = ({
   course,
@@ -43,16 +35,14 @@ export const CourseComponent = ({
   showStudents,
 }: {
   course: Course;
-  selectTextbook: React.Dispatch<React.SetStateAction<Number | undefined>>;
+  selectTextbook: (textboo_id: number, course_id: String) => void;
   refreshCourses: () => void;
   viewOnly: Boolean;
   showWaitlist: Boolean;
   showStudents: Boolean;
 }) => {
-  const [open, setOpen] = useState(false);
   const [openWaitlist, setOpenWaitlist] = useState(false);
   const [openStudents, setOpenStudents] = useState(false);
-  const [textbookName, setTextbookName] = useState("");
   const [waitlist, setWaitlist] = useState<Waitlist | null>(null);
   const [students, setStudents] = useState<User[]>([]);
 
@@ -74,14 +64,6 @@ export const CourseComponent = ({
       const data = (await response.json()) as User[];
       return data;
     }
-  };
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
   };
 
   const handleClickOpenWaitlist = async () => {
@@ -106,21 +88,6 @@ export const CourseComponent = ({
 
   const handleCloseWaitlist = () => {
     setOpenWaitlist(false);
-  };
-
-  const auth = useAuth();
-
-  const handleSave = async () => {
-    console.log("Textbook Name:", textbookName);
-    const response = await PostRequest("/admin/create_textbook", {
-      role: auth.user?.role,
-      title: textbookName,
-      course_id: course.course_id,
-    });
-    if (response.ok) {
-      refreshCourses();
-    }
-    setOpen(false);
   };
 
   const handleApprove = async (student_id: string) => {
@@ -166,49 +133,15 @@ export const CourseComponent = ({
             Student Capacity: {course.course_capacity ?? "N/A"}
           </Typography>
 
-          <Dialog open={open} onClose={handleClose}>
-            <DialogTitle>Enter Textbook Name</DialogTitle>
-            <DialogContent>
-              <TextField
-                autoFocus
-                margin="dense"
-                label="Textbook Name"
-                type="text"
-                fullWidth
-                variant="outlined"
-                value={textbookName}
-                onChange={(e) => setTextbookName(e.target.value)}
-              />
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={handleClose} color="secondary">
-                Cancel
-              </Button>
-              <Button onClick={handleSave} color="primary">
-                Save
-              </Button>
-            </DialogActions>
-          </Dialog>
-          {course.textbooks === undefined && (
-            <Button
-              variant="outlined"
-              startIcon={<AddIcon />}
-              size="small"
-              sx={{
-                marginBottom: 1,
-                display: viewOnly ? "" : "",
-              }}
-              onClick={handleClickOpen}
-            >
-              Add Textbook
-            </Button>
-          )}
           {course.textbooks !== undefined && (
             <Link
               component="button"
               variant="body2"
               onClick={() => {
-                selectTextbook(course.textbooks?.textbook_id);
+                selectTextbook(
+                  course.textbooks?.textbook_id as number,
+                  course.course_id
+                );
               }}
               sx={{ cursor: "pointer" }}
             >
@@ -343,18 +276,21 @@ export const CourseComponent = ({
             </DialogActions>
           </Dialog>
           {showStudents && course.type.toLowerCase() === "active" && (
-            <Button
-              variant="outlined"
-              size="small"
-              sx={{
-                marginBottom: 1,
-                marginTop: 1,
-                display: viewOnly ? "none" : "",
-              }}
-              onClick={handleOpenStudents}
-            >
-              View Students
-            </Button>
+            <>
+              <Button
+                variant="outlined"
+                size="small"
+                sx={{
+                  marginBottom: 1,
+                  marginTop: 1,
+                  display: viewOnly ? "none" : "",
+                }}
+                onClick={handleOpenStudents}
+              >
+                View Students
+              </Button>
+              <AddTa course_id={course.course_id}></AddTa>
+            </>
           )}
         </CardContent>
       </Card>

@@ -157,15 +157,17 @@ class Chapter:
 
 
 class Textbook:
-    def __init__(self, textbook_id: int, title: str):
+    def __init__(self, textbook_id: int, title: str, course_id: str):
         self.textbook_id = textbook_id
         self.title = title
+        self.course_id = course_id
         self.chapters: List[Chapter] = []
 
     def to_dict(self):
         return {
             "textbook_id": self.textbook_id,
             "title": self.title,
+            "course_id": self.course_id,
             "chapters": [chapter.to_dict() for chapter in self.chapters]
         }
 

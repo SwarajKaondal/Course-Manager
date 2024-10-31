@@ -9,7 +9,7 @@ GET_COURSES_TA = "SELECT C.COURSE_ID, C.TITLE, C.FACULTY, C.START_DATE, C.END_DA
 GET_COURSES_STUDENT = "SELECT C.COURSE_ID, C.TITLE, C.FACULTY, C.START_DATE, C.END_DATE, C.TYPE, AC.TOKEN, AC.Course_Capacity, C.Textbook_ID FROM COURSE C LEFT JOIN Active_Course AC ON C.Course_ID = AC.Course_ID JOIN Enroll E ON C.Course_ID = E.Course_ID WHERE E.Student_ID = %s"
 GET_COURSES_FACULTY = "SELECT C.COURSE_ID, C.TITLE, C.FACULTY, C.START_DATE, C.END_DATE, C.TYPE, AC.TOKEN, AC.Course_Capacity, C.Textbook_ID FROM COURSE C LEFT JOIN Active_Course AC ON C.Course_ID = AC.Course_ID WHERE Faculty = %s"
 
-GET_TEXTBOOK = "SELECT Textbook_ID, Title FROM Textbook WHERE Textbook_ID = %s"
+GET_TEXTBOOK = "SELECT Textbook_ID, Title, %s FROM Textbook WHERE Textbook_ID = %s"
 GET_CHAPTER = "SELECT Chapter_ID, Chapter_Number, Title FROM Chapter WHERE Textbook_ID = %s"
 GET_SECTION = "SELECT Section_ID, Title, Section_Number FROM Section WHERE Chapter_ID = %s"
 GET_CONTENT_BLOCK = "SELECT Content_BLK_ID, HIDDEN, Created_By, Sequence_Number FROM Content_Block WHERE Section_ID = %s"
@@ -53,7 +53,7 @@ def get_courses():
         c.faculty = Faculty(*faculty[0]) if faculty else None
 
         # Fetch textbooks related to the course
-        textbooks = execute_raw_sql(GET_TEXTBOOK, (c.textbook_id,))
+        textbooks = execute_raw_sql(GET_TEXTBOOK, (c.course_id, c.textbook_id,))
         for textbook in textbooks:
             textbook = Textbook(*textbook)
 
@@ -126,6 +126,19 @@ def get_course_info():
                 "Course_Id": res[1],
                 "Token": res[2],
                 "Capacity": res[3],
+            }
+        )
+    return results
+
+@common.route('/get_textbook_info', methods=['GET'])
+def get_textbook_info():
+    response = execute_raw_sql("Select T.Textbook_ID, T.Title from Textbook T;")
+    results = []
+    for res in response:
+        results.append(
+            {
+                "textbook_id": res[0],  
+                "title": res[1]
             }
         )
     return results
