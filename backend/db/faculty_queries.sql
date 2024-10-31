@@ -131,3 +131,37 @@ BEGIN
   RETURN 1;
   
 END#
+
+DELIMITER ;
+
+
+-- add new TA
+DROP PROCEDURE IF EXISTS faculty_add_ta;
+DELIMITER //
+CREATE PROCEDURE faculty_add_ta(IN user_role_id INT, IN first_name VARCHAR(255), IN last_name VARCHAR(255), IN email VARCHAR(255), IN default_password VARCHAR(255), IN course_id VARCHAR(255))
+BEGIN
+	DECLARE ta_role_id INT;
+    DECLARE faculty_role_id INT;
+    DECLARE new_user_id VARCHAR(8);
+    SELECT role_id INTO ta_role_id FROM Person_Role WHERE Role_name = 'Teaching Assistant';
+    SELECT role_id INTO faculty_role_id FROM Person_Role WHERE Role_name = 'Faculty';
+	
+    IF user_role_id = faculty_role_id THEN
+		SET new_user_id = CONCAT(
+            SUBSTRING(First_name, 1, 2),
+            SUBSTRING(Last_name, 1, 2),
+            DATE_FORMAT(CURDATE(), '%m%y')
+            );
+            
+		INSERT INTO Person (User_ID, First_name, Last_name, Email, Password, Created_On, Role_ID) VALUES
+			(new_user_id, first_name, last_name, email, default_password, CURDATE(), ta_role_id);
+		
+        INSERT INTO Teaching_Assistant (Course_ID, Student_ID) 
+        VALUES (course_id, new_user_id);
+    ELSE
+		SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'User does not have the permission to create a faculty';
+	END IF;
+END; //
+
+DELIMITER ;
