@@ -37,3 +37,8 @@ def handle_password_change():
     if data['new_password'] != data['confirm_password']:
         abort(400, description="New password and confirm password do not match.")
     return execute_query(CHANGE_PASSWORD, ['user_id', 'old_password', 'new_password'], "Password changed successfully")
+
+@person.route('/enroll', methods=['POST'])
+def handle_enroll_student():
+    result = call_procedure('person_add_student', ['first_name', 'last_name', 'email', 'course_token'])
+    return jsonify(result), 200

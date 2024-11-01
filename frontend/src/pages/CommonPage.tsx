@@ -16,7 +16,7 @@ import {
   Typography,
 } from "@mui/material";
 import { TextbookComponent } from "../components/Textbook/Textbook";
-import { Course, Textbook, Waitlist } from "../models/models";
+import { Course, CourseInfo, Textbook, Waitlist } from "../models/models";
 import Grid from "@mui/material/Grid2";
 import { Header } from "../components/Header/Header";
 import { CourseComponent } from "../components/Course/Course";
@@ -26,13 +26,6 @@ import { GetRequest, PostRequest } from "../utils/ApiManager";
 import { AddFaculty } from "../components/AddPerson/AddFaculty";
 import { AddCourse } from "../components/Course/AddCourse";
 import { AddTextbook } from "../components/Textbook/AddTextbook";
-
-interface CourseInfo {
-  Title: String;
-  Course_Id: String;
-  Token: String;
-  Capacity: number;
-}
 
 export const CommonPage = ({
   courses,
