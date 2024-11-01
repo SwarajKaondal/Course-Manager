@@ -53,7 +53,7 @@ export const CommonPage = ({
 }) => {
   const auth = useAuth();
   const [selectedTextbook, setSelectedTextbook] = useState<Number | undefined>(
-    undefined
+    undefined,
   );
   const [allCourses, setAllCourses] = useState<CourseInfo[]>([]);
   const [textbook, setTextBook] = useState<Textbook | undefined>(undefined);
@@ -61,20 +61,31 @@ export const CommonPage = ({
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState<String[]>([]);
   const isFormValid =
     currentPassword && newPassword && newPassword === confirmPassword;
 
   const setSelectedTextbookForCourse = (
     textbook_id: number,
-    course_id: String
+    course_id: String,
   ) => {
     setTextBook(
       textbooks.find(
         (textbook) =>
           textbook.textbook_id === textbook_id &&
-          textbook.course_id == course_id
-      )
+          textbook.course_id == course_id,
+      ),
     );
+  };
+
+  const fetchNotifications = async () => {
+    const requestData = {
+      user_id: auth.user?.user_id,
+    };
+    const response = await PostRequest("/common/notification", requestData);
+    const data = (await response.json()) as String[];
+    return data;
   };
 
   const handlePasswordChange = (e: React.FormEvent<HTMLFormElement>) => {
@@ -103,15 +114,26 @@ export const CommonPage = ({
       });
   };
 
+  const handleShowNotifications = (val: boolean) => {
+    if (val === true) {
+      fetchNotifications().then((data) => {
+        setNotifications(data);
+        setShowNotifications(true);
+      });
+    } else {
+      setShowNotifications(false);
+    }
+  };
+
   useEffect(() => {
     setTextBook(
-      textbooks.find((textbook) => textbook.textbook_id === selectedTextbook)
+      textbooks.find((textbook) => textbook.textbook_id === selectedTextbook),
     );
   }, [selectedTextbook]);
 
   useEffect(() => {
     setTextBook(
-      textbooks.find((textbook) => textbook.textbook_id === selectedTextbook)
+      textbooks.find((textbook) => textbook.textbook_id === selectedTextbook),
     );
   }, [textbooks]);
 
@@ -123,7 +145,7 @@ export const CommonPage = ({
 
   const fetchAllCourses = async () => {
     const courses: CourseInfo[] = await GetRequest(
-      "/common/get_course_info"
+      "/common/get_course_info",
     ).then((response) => {
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -147,7 +169,10 @@ export const CommonPage = ({
         height: "100vh",
       }}
     >
-      <Header setChangePass={setChangePass} />
+      <Header
+        setChangePass={setChangePass}
+        setShowNotification={handleShowNotifications}
+      />
 
       {auth.user?.role_name === "Admin" && (
         <>
@@ -205,7 +230,7 @@ export const CommonPage = ({
                             onClick={() =>
                               handleEnroll(
                                 auth.user !== null ? auth.user.email : "",
-                                course.Token as String
+                                course.Token as String,
                               )
                             }
                           >
@@ -342,6 +367,84 @@ export const CommonPage = ({
               </Button>
             </DialogActions>
           </form>
+        </DialogContent>
+      </Dialog>
+      <Dialog
+        open={showNotifications}
+        onClose={() => setShowNotifications(false)}
+        PaperProps={{
+          sx: {
+            width: "400px",
+            borderRadius: "8px",
+            boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+          },
+        }}
+      >
+        <DialogTitle sx={{ textAlign: "center", fontWeight: "bold" }}>
+          Notifications
+        </DialogTitle>
+        <DialogContent>
+          <TableContainer
+            component={Paper}
+            sx={{
+              mt: 2,
+              boxShadow: "none",
+              border: "1px solid #e0e0e0",
+              borderRadius: "4px",
+              maxHeight: "250px", // Optional: make the table scrollable
+            }}
+          >
+            <Table stickyHeader>
+              <TableHead>
+                <TableRow>
+                  <TableCell
+                    align="center"
+                    sx={{ fontWeight: "bold", color: "#333" }}
+                  >
+                    Notifications
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {notifications.length > 0 ? (
+                  notifications.map((notification, id) => (
+                    <TableRow key={id}>
+                      <TableCell
+                        align="center"
+                        sx={{ padding: "12px", fontSize: "14px" }}
+                      >
+                        {notification}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      align="center"
+                      sx={{ padding: "20px", color: "#757575" }}
+                    >
+                      No Notifications
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <DialogActions>
+            <Button
+              onClick={() => setShowNotifications(false)}
+              color="secondary"
+              variant="contained"
+              sx={{
+                mt: 2,
+                width: "100%",
+                fontWeight: "bold",
+                boxShadow: "none",
+              }}
+            >
+              Close
+            </Button>
+          </DialogActions>
         </DialogContent>
       </Dialog>
     </Box>

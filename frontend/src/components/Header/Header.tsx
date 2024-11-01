@@ -17,12 +17,13 @@ import { PostRequest } from "../../utils/ApiManager";
 
 export const Header = ({
   setChangePass,
+  setShowNotification,
 }: {
   setChangePass: (val: boolean) => void;
+  setShowNotification: (val: boolean) => void;
 }) => {
   const auth = useAuth();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const [showPassChangeDialog, setShowPassChangeDialog] = React.useState(false);
   const [score, setScore] = React.useState<{ total: number; score: number }>();
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {};
@@ -44,7 +45,7 @@ export const Header = ({
     if (auth.user?.role_name === "Student") {
       const result: { total: number; score: number } = await PostRequest(
         "/student/get_score",
-        { user_id: auth.user.user_id }
+        { user_id: auth.user.user_id },
       ).then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
@@ -115,6 +116,9 @@ export const Header = ({
               onClose={handleClose}
             >
               <MenuItem onClick={handleLogout}>Logout</MenuItem>
+              <MenuItem onClick={() => setShowNotification(true)}>
+                Notifications
+              </MenuItem>
               <MenuItem onClick={() => setChangePass(true)}>
                 Change Password
               </MenuItem>
