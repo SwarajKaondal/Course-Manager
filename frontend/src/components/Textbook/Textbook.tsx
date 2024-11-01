@@ -64,6 +64,7 @@ export const TextbookComponent = ({
       title: title,
       chapter_number: chapter_number,
       textbook_id: textbook.textbook_id,
+      user_id: auth.user?.user_id,
     });
     if (response.ok) {
       refreshTextbooks();
@@ -80,6 +81,7 @@ export const TextbookComponent = ({
       title: title,
       section_number: section_number,
       chapter_id: chapter_id,
+      user_id: auth.user?.user_id,
     });
     if (response.ok) {
       refreshTextbooks();
@@ -478,7 +480,10 @@ export const TextbookComponent = ({
                                       )
                                     }
                                     sx={{
-                                      display: viewOnly ? "none" : "",
+                                      display:
+                                        viewOnly || !content.can_edit
+                                          ? "none"
+                                          : "",
                                       ml: 2,
                                     }}
                                   >

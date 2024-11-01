@@ -58,7 +58,7 @@ END#
 -- 4. add_chapter
 DELIMITER #
 DROP FUNCTION IF EXISTS add_chapter#
-CREATE FUNCTION add_chapter(user_role_id INT, title VARCHAR(255), chapter_number INT, textbook_id INT)
+CREATE FUNCTION add_chapter(user_role_id INT, title VARCHAR(255), chapter_number INT, textbook_id INT, user_id VARCHAR(255))
 	RETURNS INT
     DETERMINISTIC
 BEGIN
@@ -69,8 +69,8 @@ BEGIN
     SET chapter_number_str = CONCAT('chap',LPAD(chapter_number, 2, '0'));
     
 	IF user_role_id != student_role_id THEN
-		INSERT INTO Chapter(Chapter_number, Title, Textbook_ID) VALUES
-			(chapter_number_str, title, textbook_id);
+		INSERT INTO Chapter(Chapter_number, Title, Textbook_ID, Created_By) VALUES
+			(chapter_number_str, title, textbook_id, user_id);
 		RETURN 1;
     ELSE
 		SIGNAL SQLSTATE '45000'
@@ -85,7 +85,7 @@ END#
 -- 5. add_section
 DELIMITER #
 DROP FUNCTION IF EXISTS add_section#
-CREATE FUNCTION add_section(user_role_id INT, title VARCHAR(255), section_number INT, chapter_id INT)
+CREATE FUNCTION add_section(user_role_id INT, title VARCHAR(255), section_number INT, chapter_id INT, user_id VARCHAR(255))
 	RETURNS INT
     DETERMINISTIC
 BEGIN
@@ -93,8 +93,8 @@ BEGIN
 	SELECT role_id INTO student_role_id FROM Person_Role WHERE Role_name = 'Student';
     
 	IF user_role_id != student_role_id THEN
-		INSERT INTO Section(Section_number, Title, Chapter_ID) VALUES
-			(section_number, title, chapter_id);
+		INSERT INTO Section(Section_number, Title, Chapter_ID, Created_By) VALUES
+			(section_number, title, chapter_id, user_id);
 		RETURN 1;
     ELSE
 		SIGNAL SQLSTATE '45000'

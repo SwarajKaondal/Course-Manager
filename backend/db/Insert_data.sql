@@ -7,7 +7,7 @@ INSERT INTO person_role (Role_ID, Role_name) VALUES
 
 -- Insert data into Person
 INSERT INTO Person (User_ID, First_name, Last_name, Email, Password, Created_On, Role_ID) VALUES
-('UtLo1024', 'Utraj', 'Loandal', 'utal69@example.com', 'admin', '2024-10-01', 1),
+('UtSh1024', 'Utraj', 'Shourya', 'utal69@example.com', 'admin', '2024-10-01', 1),
 ('ErPe1024', 'Eric', 'Perrig', 'ez356@example.com', 'qwdmq', '2024-10-01', 3),
 ('AlAr1024', 'Alice', 'Artho', 'aa23@edu.com', 'omdsws', '2024-10-02', 3),
 ('BoTe1024', 'Bob', 'Temple', 'bt163@template.com', 'sak+=', '2024-10-03', 3),
@@ -45,38 +45,38 @@ INSERT INTO Course (Course_ID, Title, Faculty, Start_Date, End_Date, Type, Textb
 ('NCSUSaraCSC326F25', 'CSC326 Software Engineering', 'SaMi1024', '2024-08-27', '2024-12-19', 'EVALUATION', 102);
 
 -- Insert data into Chapter
-INSERT INTO Chapter (Chapter_ID, Chapter_number, Hidden, Title, Textbook_ID) VALUES
-(1, 'chap01', FALSE, 'Getting Started with Programming', 101),
-(2, 'chap02', FALSE, 'Data Structures', 101),
-(3, 'chap01', FALSE, 'Introduction to SQL', 102),
-(4, 'chap02', FALSE, 'Web Technologies', 102),
-(5, 'chap01', FALSE, 'Web Technologies', 103);
+INSERT INTO Chapter (Chapter_ID, Chapter_number, Hidden, Title, Textbook_ID, Created_By) VALUES
+(1, 'chap01', FALSE, 'Getting Started with Programming', 101, 'UtSh1024'),
+(2, 'chap02', FALSE, 'Data Structures', 101, 'UtSh1024'),
+(3, 'chap01', FALSE, 'Introduction to SQL', 102, 'UtSh1024'),
+(4, 'chap02', FALSE, 'Web Technologies', 102, 'UtSh1024'),
+(5, 'chap01', FALSE, 'Web Technologies', 103, 'UtSh1024');
 
 -- Insert data into Section
-INSERT INTO Section (Section_ID, Title, Section_number, Chapter_ID, Hidden) VALUES
-(1, 'Database Management Systems (DBMS) Overview', 1, 1, FALSE),
-(2, 'Data Models and Schemas', 2, 1, FALSE),
-(3, 'Entities, Attributes, and Relationships', 1, 2, FALSE),
-(4, 'Normalization and Integrity Constraints', 2, 2, FALSE),
-(5, 'History and Evolution of Software Engineering', 1, 3, FALSE),
-(6, 'Key Principles of Software Engineering', 2, 3, FALSE),
-(7, 'Phases of the SDLC', 1, 4, TRUE),
-(8, 'Agile vs. Waterfall Models', 2, 4, FALSE),
-(9, 'Overview of Machine Learning', 1, 5, TRUE),
-(10, 'Supervised vs Unsupervised Learning', 2, 5, FALSE);
+INSERT INTO Section (Section_ID, Title, Section_number, Chapter_ID, Hidden, Created_By) VALUES
+(1, 'Database Management Systems (DBMS) Overview', 1, 1, FALSE, 'UtSh1024'),
+(2, 'Data Models and Schemas', 2, 1, FALSE, 'UtSh1024'),
+(3, 'Entities, Attributes, and Relationships', 1, 2, FALSE, 'UtSh1024'),
+(4, 'Normalization and Integrity Constraints', 2, 2, FALSE, 'UtSh1024'),
+(5, 'History and Evolution of Software Engineering', 1, 3, FALSE, 'UtSh1024'),
+(6, 'Key Principles of Software Engineering', 2, 3, FALSE, 'UtSh1024'),
+(7, 'Phases of the SDLC', 1, 4, TRUE, 'UtSh1024'),
+(8, 'Agile vs. Waterfall Models', 2, 4, FALSE, 'UtSh1024'),
+(9, 'Overview of Machine Learning', 1, 5, TRUE, 'UtSh1024'),
+(10, 'Supervised vs Unsupervised Learning', 2, 5, FALSE, 'UtSh1024');
 
 -- Insert data into Content_Block
 INSERT INTO Content_Block (Content_BLK_ID, Hidden, Created_By, Sequence_number, Section_ID) VALUES
-(1, FALSE, 'UtLo1024', 1, 1),
-(2, FALSE, 'UtLo1024', 2, 2),
-(3, FALSE, 'UtLo1024', 1, 3),
-(4, FALSE, 'UtLo1024', 1, 4),
-(5, FALSE, 'UtLo1024', 1, 5),
-(6, FALSE, 'UtLo1024', 2, 6),
-(7, FALSE, 'UtLo1024', 1, 7),
-(8, FALSE, 'UtLo1024', 1, 8),
-(9, FALSE, 'UtLo1024', 1, 9),
-(10, FALSE, 'UtLo1024', 2, 10);
+(1, FALSE, 'UtSh1024', 1, 1),
+(2, FALSE, 'UtSh1024', 2, 2),
+(3, FALSE, 'UtSh1024', 1, 3),
+(4, FALSE, 'UtSh1024', 1, 4),
+(5, FALSE, 'UtSh1024', 1, 5),
+(6, FALSE, 'UtSh1024', 2, 6),
+(7, FALSE, 'UtSh1024', 1, 7),
+(8, FALSE, 'UtSh1024', 1, 8),
+(9, FALSE, 'UtSh1024', 1, 9),
+(10, FALSE, 'UtSh1024', 2, 10);
 
 -- Insert data into Image
 INSERT INTO Image (Image_ID, Path, Content_BLK_ID) VALUES

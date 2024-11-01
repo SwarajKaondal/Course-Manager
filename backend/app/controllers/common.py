@@ -10,8 +10,8 @@ GET_COURSES_STUDENT = "SELECT C.COURSE_ID, C.TITLE, C.FACULTY, C.START_DATE, C.E
 GET_COURSES_FACULTY = "SELECT C.COURSE_ID, C.TITLE, C.FACULTY, C.START_DATE, C.END_DATE, C.TYPE, AC.TOKEN, AC.Course_Capacity, C.Textbook_ID FROM COURSE C LEFT JOIN Active_Course AC ON C.Course_ID = AC.Course_ID WHERE Faculty = %s"
 
 GET_TEXTBOOK = "SELECT Textbook_ID, Title, %s FROM Textbook WHERE Textbook_ID = %s"
-GET_CHAPTER = "SELECT Chapter_ID, Chapter_Number, Title, Hidden FROM Chapter WHERE Textbook_ID = %s"
-GET_SECTION = "SELECT Section_ID, Title, Section_Number, Hidden FROM Section WHERE Chapter_ID = %s"
+GET_CHAPTER = "SELECT Chapter_ID, Chapter_Number, Title, Hidden, Created_By FROM Chapter WHERE Textbook_ID = %s"
+GET_SECTION = "SELECT Section_ID, Title, Section_Number, Hidden, Created_By FROM Section WHERE Chapter_ID = %s"
 GET_CONTENT_BLOCK = "SELECT Content_BLK_ID, HIDDEN, Created_By, Sequence_Number FROM Content_Block WHERE Section_ID = %s"
 GET_IMAGE = "SELECT Image_ID, Path FROM Image WHERE Content_BLK_ID = %s"
 GET_TEXT_BLOCK = "SELECT Text_Blk_ID, Text FROM Text_Block WHERE Content_BLK_ID = %s"
@@ -19,6 +19,16 @@ GET_ACTIVIY = "SELECT Activity_ID, Question, Question_ID, %s FROM Activity WHERE
 GET_ANSWERS = "SELECT Answer_ID, Answer_Text, Answer_Explanation, Correct FROM Answer WHERE Activity_ID = %s"
 GET_FACULTY = "SELECT P.User_ID, P.First_Name, P.Last_Name, P.Email, R.Role_name, P.Role_ID FROM Person P, Person_Role R, Course C WHERE C.course_id = %s AND C.faculty = P.user_id AND P.Role_ID = R.Role_ID"
 
+GET_ROLE = "SELECT Role_ID FROM Person WHERE User_ID = %s"
+
+def can_edit(role_id: int, created_by_role: int):
+    if role_id == 1:
+        return True
+    if role_id == 2 and created_by_role == 2 or created_by_role == 4:
+        return True
+    if role_id == 4 and created_by_role == 4:
+        return True
+    return False
 
 @common.route('/roles', methods=['GET'])
 def get_roles():
@@ -61,16 +71,22 @@ def get_courses():
             chapters = execute_raw_sql(GET_CHAPTER, (textbook.textbook_id,))
             for chapter in chapters:
                 chapter = Chapter(*chapter)
+                created_by_role = execute_raw_sql(GET_ROLE, (chapter.created_by,))
+                chapter.can_edit = can_edit(user_role_id, created_by_role[0][0])
 
                 # Fetch sections in the chapter
                 sections = execute_raw_sql(GET_SECTION, (chapter.chapter_id,))
                 for section in sections:
                     section = Section(*section)
+                    created_by_role = execute_raw_sql(GET_ROLE, (section.created_by,))
+                    section.can_edit = can_edit(user_role_id, created_by_role[0][0])
 
                     # Fetch content blocks in the section
                     content_blocks = execute_raw_sql(GET_CONTENT_BLOCK, (section.section_id,))
                     for content_block in content_blocks:
                         content_block = ContentBlock(*content_block)
+                        created_by_role = execute_raw_sql(GET_ROLE, (content_block.created_by,))
+                        content_block.can_edit = can_edit(user_role_id, created_by_role[0][0])
 
                         # Fetch images associated with the content block
                         images = execute_raw_sql(GET_IMAGE, (content_block.content_blk_id,))

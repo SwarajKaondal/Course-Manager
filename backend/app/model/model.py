@@ -111,12 +111,14 @@ class ContentBlock:
         self.text_block: Optional[TextBlock] = None
         self.image: Optional[Image] = None
         self.activity: List[Activity] = []
+        self.can_edit = False
 
     def to_dict(self):
         return {
             "content_block_id": self.content_blk_id,
             "hidden": self.hidden,
             "created_by": self.created_by,
+            "can_edit": self.can_edit,
             "sequence_number": self.sequence_number,
             "text_block": self.text_block.to_dict() if self.text_block else None,
             "image": self.image.to_dict() if self.image else None,
@@ -125,12 +127,14 @@ class ContentBlock:
 
 
 class Section:
-    def __init__(self, section_id: int, title: str, section_number: int, hidden: bool):
+    def __init__(self, section_id: int, title: str, section_number: int, hidden: bool, created_by: str):
         self.section_id = section_id
         self.title = title
         self.section_number = section_number
         self.content_blocks: List[ContentBlock] = []
         self.hidden = hidden
+        self.can_edit = False
+        self.created_by = created_by
 
     def to_dict(self):
         return {
@@ -138,17 +142,20 @@ class Section:
             "title": self.title,
             "section_number": self.section_number,
             "hidden": self.hidden,
+            "can_edit": self.can_edit,
             "content_blocks": [block.to_dict() for block in self.content_blocks]
         }
 
 
 class Chapter:
-    def __init__(self, chapter_id: int, chapter_number: str, title: str, hidden: bool):
+    def __init__(self, chapter_id: int, chapter_number: str, title: str, hidden: bool, created_by: str):
         self.chapter_id = chapter_id
         self.chapter_number = chapter_number
         self.title = title
         self.sections: List[Section] = []
         self.hidden: bool = hidden
+        self.can_edit = False
+        self.created_by = created_by
 
     def to_dict(self):
         return {
@@ -156,6 +163,7 @@ class Chapter:
             "chapter_number": self.chapter_number,
             "title": self.title,
             "hidden": self.hidden,
+            "can_edit": self.can_edit,
             "sections": [section.to_dict() for section in self.sections]
         }
 

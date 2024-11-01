@@ -31,6 +31,7 @@ export interface Chapter {
   chapter_number: String;
   title: String;
   hidden: Boolean;
+  can_edit: Boolean;
   sections: Section[];
 }
 
@@ -39,6 +40,7 @@ export interface Section {
   title: String;
   section_number: number;
   hidden: Boolean;
+  can_edit: Boolean;
   content_blocks: Content_block[];
 }
 
@@ -47,6 +49,7 @@ export interface Content_block {
   hidden: Boolean;
   created_by: User;
   sequence_number: number;
+  can_edit: Boolean;
   text_block: Text_block | undefined;
   image: Image | undefined;
   activity: Activity[] | undefined;

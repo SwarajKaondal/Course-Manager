@@ -5,8 +5,8 @@ admin = Blueprint('admin', __name__, url_prefix='/admin')
 
 CREATE_FACULTY = "SELECT create_faculty(%s, %s, %s, %s, %s)"
 CREATE_TEXTBOOK = "SELECT create_textbook(%s, %s)"
-ADD_CHAPTER = "SELECT add_chapter(%s, %s, %s, %s)"
-ADD_SECTION = "SELECT add_section(%s, %s, %s, %s)"
+ADD_CHAPTER = "SELECT add_chapter(%s, %s, %s, %s, %s)"
+ADD_SECTION = "SELECT add_section(%s, %s, %s, %s, %s)"
 ADD_CONTENT_BLOCK = "SELECT add_content_block(%s, %s, %s, %s)"
 ADD_TEXT = "SELECT add_text(%s, %s, %s)"
 ADD_PICTURE = "SELECT add_picture(%s, %s, %s)"
@@ -33,14 +33,14 @@ def create_textbook():
 @admin.route('/add_chapter', methods=['POST'])
 def add_chapter():
     return execute_query(ADD_CHAPTER,
-                  ['role', 'title', 'chapter_number', 'textbook_id'],
+                  ['role', 'title', 'chapter_number', 'textbook_id', 'user_id'],
                   "Chapter added successfully")
 
 
 @admin.route('/add_section', methods=['POST'])
 def add_section():
     return execute_query(ADD_SECTION,
-                  ['role', 'title', 'section_number', 'chapter_id'],
+                  ['role', 'title', 'section_number', 'chapter_id', 'user_id'],
                   "Section added successfully")
 
 

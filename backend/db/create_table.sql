@@ -76,6 +76,8 @@ CREATE TABLE Chapter (
     Hidden BOOLEAN NOT NULL DEFAULT FALSE,
     Title VARCHAR(255) NOT NULL,
     Textbook_ID INT NOT NULL,
+    Created_By VARCHAR(50) NOT NULL,
+    FOREIGN KEY (Created_By) REFERENCES Person(User_ID),
     CONSTRAINT unique_chapter UNIQUE(Textbook_ID, Chapter_number),
     FOREIGN KEY (Textbook_ID) REFERENCES Textbook(Textbook_ID)
 		ON DELETE CASCADE
@@ -88,6 +90,8 @@ CREATE TABLE Section (
     Section_number char(5) NOT NULL,
     Chapter_ID INT NOT NULL,
     Hidden BOOLEAN NOT NULL DEFAULT FALSE,
+	Created_By VARCHAR(50) NOT NULL,
+    FOREIGN KEY (Created_By) REFERENCES Person(User_ID),
     CONSTRAINT unique_section UNIQUE(Chapter_ID, Section_number),
     FOREIGN KEY (Chapter_ID) REFERENCES Chapter(Chapter_ID)
 		ON DELETE CASCADE
