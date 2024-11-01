@@ -9,8 +9,8 @@ import {
 } from "@mui/material";
 import { Textbook } from "../../models/models";
 import AddIcon from "@mui/icons-material/Add";
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { ActivityComponent } from "../Activity/Activity";
 import { PostRequest } from "../../utils/ApiManager";
@@ -192,48 +192,35 @@ export const TextbookComponent = ({
   };
 
   const handleModifyContent = (content_blk_id: any) => {
-    fetch('http://127.0.0.1:5000/ta/hideContent', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ content_blk_id: content_blk_id }), // Send the content block ID
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then((data) => {
-        console.log('Success:', data);
+    PostRequest("/ta/hideContent", {
+      content_blk_id: content_blk_id,
+    }).then((response) => {
+      if (response.ok) {
         refreshTextbooks();
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-      });
+      }
+    });
   };
 
   const handleDeleteContent = (content_blk_id: any) => {
-    fetch('http://127.0.0.1:5000/ta/deleteContent', {
-      method: 'POST',
+    fetch("http://127.0.0.1:5000/ta/deleteContent", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({ content_blk_id: content_blk_id }), // Send the content block ID
     })
       .then((response) => {
         if (!response.ok) {
-          throw new Error('Network response was not ok');
+          throw new Error("Network response was not ok");
         }
         return response.json();
       })
       .then((data) => {
-        console.log('Success:', data);
+        console.log("Success:", data);
         refreshTextbooks();
       })
       .catch((error) => {
-        console.error('Error:', error);
+        console.error("Error:", error);
       });
   };
 
@@ -274,7 +261,14 @@ export const TextbookComponent = ({
           <Accordion
             key={"chapter-" + chapter_idx}
             defaultExpanded
-            sx={{ boxShadow: "none", border: "none" }}
+            sx={{
+              boxShadow: "none",
+              border: "none",
+              display:
+                chapter.hidden && auth.user?.role_name.toLowerCase()
+                  ? "none"
+                  : "",
+            }}
           >
             <AccordionSummary
               expandIcon={<ExpandMoreIcon />}
@@ -311,7 +305,14 @@ export const TextbookComponent = ({
                   <Accordion
                     key={"section-" + section_idx}
                     defaultExpanded
-                    sx={{ boxShadow: "none", border: "none" }}
+                    sx={{
+                      boxShadow: "none",
+                      border: "none",
+                      display:
+                        section.hidden && auth.user?.role_name.toLowerCase()
+                          ? "none"
+                          : "",
+                    }}
                   >
                     <AccordionSummary
                       expandIcon={<ExpandMoreIcon />}
@@ -340,7 +341,6 @@ export const TextbookComponent = ({
                         >
                           Add Content
                         </Button>
-
                       </Box>
                     </AccordionSummary>
                     <Divider />
@@ -353,7 +353,16 @@ export const TextbookComponent = ({
                             <Accordion
                               key={"content-" + content_idx}
                               defaultExpanded
-                              sx={{ boxShadow: "none", border: "none" }}
+                              sx={{
+                                boxShadow: "none",
+                                border: "none",
+                                display:
+                                  content.hidden &&
+                                  auth.user?.role_name.toLowerCase() ===
+                                    "student"
+                                    ? "none"
+                                    : "",
+                              }}
                             >
                               <AccordionSummary
                                 expandIcon={<ExpandMoreIcon />}
@@ -437,29 +446,44 @@ export const TextbookComponent = ({
                                     Add Activity
                                   </Button>
 
-                                  <Button
-                          variant="outlined"
-                          startIcon={<EditIcon />}
-                          color="secondary"
-                          onClick={() =>
-                            handleModifyContent(content.content_block_id)
-                          }
-                          sx={{ display: viewOnly ? "none" : "", ml: 2 }}
-                          >
-                          Modify Content
-                          </Button>
+                                  {auth.user?.role_name.toLowerCase() !==
+                                    "student" && (
+                                    <Button
+                                      variant="outlined"
+                                      startIcon={<EditIcon />}
+                                      color="secondary"
+                                      onClick={() =>
+                                        handleModifyContent(
+                                          content.content_block_id,
+                                        )
+                                      }
+                                      sx={{
+                                        display: viewOnly ? "none" : "",
+                                        ml: 2,
+                                      }}
+                                    >
+                                      {content.hidden
+                                        ? "Unhide Content"
+                                        : "Hide Content"}
+                                    </Button>
+                                  )}
 
-                          <Button
-                          variant="outlined"
-                          startIcon={<DeleteIcon />}
-                          color="secondary"
-                          onClick={() =>
-                            handleDeleteContent(content.content_block_id )
-                          }
-                          sx={{ display: viewOnly ? "none" : "", ml: 2 }}
-                          >
-                          Delete Content
-                          </Button>
+                                  <Button
+                                    variant="outlined"
+                                    startIcon={<DeleteIcon />}
+                                    color="secondary"
+                                    onClick={() =>
+                                      handleDeleteContent(
+                                        content.content_block_id,
+                                      )
+                                    }
+                                    sx={{
+                                      display: viewOnly ? "none" : "",
+                                      ml: 2,
+                                    }}
+                                  >
+                                    Delete Content
+                                  </Button>
                                 </Box>
                               </AccordionSummary>
                               <Divider />

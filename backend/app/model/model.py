@@ -125,33 +125,37 @@ class ContentBlock:
 
 
 class Section:
-    def __init__(self, section_id: int, title: str, section_number: int):
+    def __init__(self, section_id: int, title: str, section_number: int, hidden: bool):
         self.section_id = section_id
         self.title = title
         self.section_number = section_number
         self.content_blocks: List[ContentBlock] = []
+        self.hidden = hidden
 
     def to_dict(self):
         return {
             "section_id": self.section_id,
             "title": self.title,
             "section_number": self.section_number,
+            "hidden": self.hidden,
             "content_blocks": [block.to_dict() for block in self.content_blocks]
         }
 
 
 class Chapter:
-    def __init__(self, chapter_id: int, chapter_number: str, title: str):
+    def __init__(self, chapter_id: int, chapter_number: str, title: str, hidden: bool):
         self.chapter_id = chapter_id
         self.chapter_number = chapter_number
         self.title = title
         self.sections: List[Section] = []
+        self.hidden: bool = hidden
 
     def to_dict(self):
         return {
             "chapter_id": self.chapter_id,
             "chapter_number": self.chapter_number,
             "title": self.title,
+            "hidden": self.hidden,
             "sections": [section.to_dict() for section in self.sections]
         }
 

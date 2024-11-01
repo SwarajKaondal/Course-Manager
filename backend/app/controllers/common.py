@@ -10,8 +10,8 @@ GET_COURSES_STUDENT = "SELECT C.COURSE_ID, C.TITLE, C.FACULTY, C.START_DATE, C.E
 GET_COURSES_FACULTY = "SELECT C.COURSE_ID, C.TITLE, C.FACULTY, C.START_DATE, C.END_DATE, C.TYPE, AC.TOKEN, AC.Course_Capacity, C.Textbook_ID FROM COURSE C LEFT JOIN Active_Course AC ON C.Course_ID = AC.Course_ID WHERE Faculty = %s"
 
 GET_TEXTBOOK = "SELECT Textbook_ID, Title, %s FROM Textbook WHERE Textbook_ID = %s"
-GET_CHAPTER = "SELECT Chapter_ID, Chapter_Number, Title FROM Chapter WHERE Textbook_ID = %s"
-GET_SECTION = "SELECT Section_ID, Title, Section_Number FROM Section WHERE Chapter_ID = %s"
+GET_CHAPTER = "SELECT Chapter_ID, Chapter_Number, Title, Hidden FROM Chapter WHERE Textbook_ID = %s"
+GET_SECTION = "SELECT Section_ID, Title, Section_Number, Hidden FROM Section WHERE Chapter_ID = %s"
 GET_CONTENT_BLOCK = "SELECT Content_BLK_ID, HIDDEN, Created_By, Sequence_Number FROM Content_Block WHERE Section_ID = %s"
 GET_IMAGE = "SELECT Image_ID, Path FROM Image WHERE Content_BLK_ID = %s"
 GET_TEXT_BLOCK = "SELECT Text_Blk_ID, Text FROM Text_Block WHERE Content_BLK_ID = %s"
@@ -137,12 +137,12 @@ def get_textbook_info():
     for res in response:
         results.append(
             {
-                "textbook_id": res[0],  
+                "textbook_id": res[0],
                 "title": res[1]
             }
         )
     return results
-  
+
 @common.route('/notification', methods=['POST'])
 def get_notifications():
     result = call_procedure('person_notification', ['user_id'])
