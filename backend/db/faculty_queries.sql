@@ -21,8 +21,8 @@ CREATE TRIGGER after_enroll_insert
 AFTER INSERT ON ENROLL
 FOR EACH ROW
 BEGIN
-    DECLARE enrolled_count INT DEFAULT 0;
-    DECLARE course_capacity INT DEFAULT 0;
+    DECLARE enrolled_count INT;
+    DECLARE course_capacity INT;
 
     -- Get the current number of students enrolled in the course
     SELECT COUNT(*) 

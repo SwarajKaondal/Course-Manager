@@ -98,3 +98,10 @@ export interface Role {
   role: number;
   role_name: String;
 }
+
+export interface CourseInfo {
+  Title: string;
+  Course_Id: string;
+  Token: string;
+  Capacity: number;
+}
