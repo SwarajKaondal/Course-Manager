@@ -10,7 +10,7 @@ ADD_SECTION = "SELECT add_section(%s, %s, %s, %s, %s)"
 ADD_CONTENT_BLOCK = "SELECT add_content_block(%s, %s, %s, %s)"
 ADD_TEXT = "SELECT add_text(%s, %s, %s)"
 ADD_PICTURE = "SELECT add_picture(%s, %s, %s)"
-ADD_ACTIVITY = "SELECT add_activity(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+ADD_ACTIVITY = "SELECT add_activity(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 ADD_ACTIVE_COURSE = "SELECT add_active_course(%s, %s, %s, %s, %s, %s, %s, %s, %s)"
 ADD_EVAL_COURSE = "SELECT add_eval_course(%s, %s, %s, %s, %s, %s, %s)"
 
@@ -68,7 +68,7 @@ def add_picture():
 @admin.route('/add_activity', methods=['POST'])
 def add_activity():
     return execute_query(ADD_ACTIVITY,
-                  ['role', 'question', 'content_blk_id', 'ans_txt_1', 'ans_explain_1', 'correct_1',
+                  ['role', 'question_id', 'question', 'content_blk_id', 'ans_txt_1', 'ans_explain_1', 'correct_1',
                    'ans_txt_2', 'ans_explain_2', 'correct_2', 'ans_txt_3', 'ans_explain_3', 'correct_3',
                    'ans_txt_4', 'ans_explain_4', 'correct_4'],
                   "Activity added successfully")

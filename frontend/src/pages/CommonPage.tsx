@@ -45,9 +45,7 @@ export const CommonPage = ({
   showStudents: Boolean;
 }) => {
   const auth = useAuth();
-  const [selectedTextbook, setSelectedTextbook] = useState<Number | undefined>(
-    undefined,
-  );
+
   const [allCourses, setAllCourses] = useState<CourseInfo[]>([]);
   const [textbook, setTextBook] = useState<Textbook | undefined>(undefined);
   const [showChangePass, setChangePass] = useState(false);
@@ -61,14 +59,14 @@ export const CommonPage = ({
 
   const setSelectedTextbookForCourse = (
     textbook_id: number,
-    course_id: String,
+    course_id: String
   ) => {
     setTextBook(
       textbooks.find(
         (textbook) =>
           textbook.textbook_id === textbook_id &&
-          textbook.course_id == course_id,
-      ),
+          textbook.course_id == course_id
+      )
     );
   };
 
@@ -119,33 +117,37 @@ export const CommonPage = ({
   };
 
   useEffect(() => {
-    setTextBook(
-      textbooks.find((textbook) => textbook.textbook_id === selectedTextbook),
-    );
-  }, [selectedTextbook]);
-
-  useEffect(() => {
-    setTextBook(
-      textbooks.find((textbook) => textbook.textbook_id === selectedTextbook),
-    );
-  }, [textbooks]);
+    if (textbook !== undefined) {
+      setTextBook(
+        textbooks.find(
+          (textbook_) =>
+            textbook_.textbook_id === textbook.textbook_id &&
+            textbook_.course_id == textbook.course_id
+        )
+      );
+    }
+  }, [textbook, textbooks]);
 
   useEffect(() => {
     fetchAllCourses();
-  }, []);
+  }, [courses]);
 
   const [openCourseList, setOpenCourseList] = useState(false);
 
   const fetchAllCourses = async () => {
-    const courses: CourseInfo[] = await GetRequest(
+    let course_infos: CourseInfo[] = await PostRequest(
       "/common/get_course_info",
+      { user_id: auth.user?.user_id }
     ).then((response) => {
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       return response.json();
     });
-    setAllCourses(courses);
+    course_infos = course_infos.filter(
+      (c) => !courses.map((c1) => c1.course_id).includes(c.Course_Id)
+    );
+    setAllCourses(course_infos);
   };
 
   const handleEnroll = async (email: String, course_token: String) => {
@@ -153,6 +155,9 @@ export const CommonPage = ({
       email: email,
       course_token: course_token,
     });
+    if (response.ok) {
+      fetchAllCourses();
+    }
   };
 
   return (
@@ -223,7 +228,7 @@ export const CommonPage = ({
                             onClick={() =>
                               handleEnroll(
                                 auth.user !== null ? auth.user.email : "",
-                                course.Token as String,
+                                course.Token as String
                               )
                             }
                           >

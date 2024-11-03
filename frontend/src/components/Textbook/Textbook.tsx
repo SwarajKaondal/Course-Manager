@@ -57,7 +57,6 @@ export const TextbookComponent = ({
   >();
 
   useEffect(() => {}, [textbook]);
-  console.log(textbook);
 
   const handleAddChapter = async (title: String, chapter_number: number) => {
     const response = await PostRequest("/admin/add_chapter", {
@@ -111,7 +110,6 @@ export const TextbookComponent = ({
       content_blk_id: content_block_id,
     });
     if (response.ok) {
-      console.log("Cool");
       refreshTextbooks();
     }
   };
@@ -197,9 +195,11 @@ export const TextbookComponent = ({
   const handleModifyContent = (content_blk_id: any) => {
     PostRequest("/ta/hideContent", {
       content_blk_id: content_blk_id,
-    }).then((response) => {
-      if (response.ok) {
-        refreshTextbooks();
+    })
+      .then((response) => {
+        if (response.ok) {
+          refreshTextbooks();
+        }
       })
       .catch((error) => {
         console.error("Error:", error);
@@ -207,19 +207,9 @@ export const TextbookComponent = ({
   };
 
   const handleDeleteContent = (content_blk_id: any) => {
-    fetch("http://127.0.0.1:5000/ta/deleteContent", {
-      method: "POST",
-    fetch("http://127.0.0.1:5000/ta/deleteContent", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ content_blk_id: content_blk_id }), // Send the content block ID
-    })
+    PostRequest("ta/deleteContent", { content_blk_id: content_blk_id })
       .then((response) => {
         if (!response.ok) {
-          throw new Error("Network response was not ok");
           throw new Error("Network response was not ok");
         }
         return response.json();
@@ -448,7 +438,7 @@ export const TextbookComponent = ({
                                       color="secondary"
                                       onClick={() =>
                                         handleModifyContent(
-                                          content.content_block_id,
+                                          content.content_block_id
                                         )
                                       }
                                       sx={{
@@ -468,7 +458,7 @@ export const TextbookComponent = ({
                                     color="secondary"
                                     onClick={() =>
                                       handleDeleteContent(
-                                        content.content_block_id,
+                                        content.content_block_id
                                       )
                                     }
                                     sx={{
@@ -485,19 +475,26 @@ export const TextbookComponent = ({
                               </AccordionSummary>
                               <Divider />
                               <AccordionDetails>
-                                <Typography variant="body1">
-                                  {content.text_block?.text}
-                                </Typography>
-                                {content.image && (
-                                  <img
-                                    src={"" + content.image?.path}
-                                    alt="Sample"
-                                    style={{
-                                      maxWidth: "100%",
-                                      height: "auto",
-                                    }}
-                                  />
-                                )}
+                                {content.text_block !== null &&
+                                  content.text_block !== undefined &&
+                                  content.text_block.map((text_block, i) => (
+                                    <Typography variant="body1">
+                                      {text_block.text}
+                                    </Typography>
+                                  ))}
+
+                                {content.image !== null &&
+                                  content.image !== undefined &&
+                                  content.image.map((image, i) => (
+                                    <img
+                                      src={"" + image.path}
+                                      alt="Sample"
+                                      style={{
+                                        maxWidth: "100%",
+                                        height: "auto",
+                                      }}
+                                    />
+                                  ))}
                                 {content.activity !== undefined &&
                                   content.activity !== null &&
                                   content.activity.length > 0 && (

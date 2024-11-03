@@ -21,6 +21,32 @@ GET_FACULTY = "SELECT P.User_ID, P.First_Name, P.Last_Name, P.Email, R.Role_name
 
 GET_ROLE = "SELECT Role_ID FROM Person WHERE User_ID = %s"
 
+QUERY_MAPPING = {
+    1: {
+        "headers": ["Textbook ID","Texbook Name", "Sections"],
+        "query": "SELECT t.Textbook_ID, t.Title, Count(s.Section_ID) as Sections FROM Textbook t "+
+                "INNER JOIN Chapter c ON t.Textbook_ID = c.Textbook_ID "+
+                "INNER JOIN Section s ON s.Chapter_ID = c.Chapter_ID "+
+                "WHERE c.chapter_number = 'chap01' "+
+                "group by t.Textbook_ID;",
+    },
+    2: {
+        "headers": ["First Name","Last Name", "Role"],
+        "query": "select P.First_Name, P.Last_Name, R.Role_name from Course C " +
+                "INNER JOIN Person P ON C.Faculty = P.User_ID " +
+                "INNER JOIN Person_Role R ON P.Role_ID = R.Role_ID " +
+                "union " +
+                "SELECT Distinct P.First_Name, P.Last_Name, R.Role_name FROM Teaching_Assistant T " +
+                "INNER JOIN Person P ON T.Student_ID = P.User_ID " +
+                "INNER JOIN Person_Role R ON P.Role_ID = R.Role_ID;"
+    },
+    3: "",
+    4: "",
+    5: "",
+    6: "",
+    7: "",
+}
+
 def can_edit(role_id: int, created_by_role: int):
     if role_id == 1:
         return True
@@ -92,13 +118,13 @@ def get_courses():
                         images = execute_raw_sql(GET_IMAGE, (content_block.content_blk_id,))
                         for image in images:
                             image = Image(*image)
-                            content_block.image = image
+                            content_block.image.append(image)
 
                         # Fetch text blocks associated with the content block
                         text_blocks = execute_raw_sql(GET_TEXT_BLOCK, (content_block.content_blk_id,))
                         for text_block in text_blocks:
                             text_block = TextBlock(*text_block)
-                            content_block.text_block = text_block
+                            content_block.text_block.append(text_block)
 
                         # Fetch activities associated with the content block
                         activities = execute_raw_sql(GET_ACTIVIY, (c.course_id, content_block.content_blk_id,))
@@ -131,9 +157,16 @@ def get_courses():
 
     return jsonify(course_list), 200
 
-@common.route('/get_course_info', methods=['GET'])
+@common.route('/get_course_info', methods=['Post'])
 def get_course_info():
-    response = execute_raw_sql("Select C.Title, A.* from Active_course as A INNER JOIN Course C on A.Course_ID = C.Course_ID")
+    data = request.get_json()
+    if "user_id" in data:
+        user_id = data["user_id"]
+    else:
+        user_id = None
+    response = execute_raw_sql(
+        "Select C.Title, A.* from Active_course as A INNER JOIN Course C on A.Course_ID = C.Course_ID where C.Course_ID not in (select W.Course_ID from Waitlist W where W.Student_ID = %s)",
+        [user_id])
     results = []
     for res in response:
         results.append(
@@ -166,3 +199,14 @@ def get_notifications():
     for row in result[0]:
         notifications.append(row[0])
     return jsonify(notifications), 200
+
+@common.route('/get_query_data/<int:query_id>', methods=['GET'])
+def get_query_data(query_id):
+    results = execute_raw_sql(QUERY_MAPPING[query_id]["query"])
+    response = []
+    for result in results:
+        obj = {}
+        for i, header in enumerate(QUERY_MAPPING[query_id]["headers"]):
+            obj[header] = result[i]
+        response.append(obj)
+    return jsonify(response), 200

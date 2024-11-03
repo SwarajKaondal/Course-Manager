@@ -14,6 +14,7 @@ import Menu from "@mui/material/Menu";
 import { Avatar, Chip } from "@mui/material";
 import { useAuth } from "../../provider/AuthProvider";
 import { PostRequest } from "../../utils/ApiManager";
+import { Link } from "react-router-dom";
 
 export const Header = ({
   setChangePass,
@@ -45,7 +46,7 @@ export const Header = ({
     if (auth.user?.role_name === "Student") {
       const result: { total: number; score: number } = await PostRequest(
         "/student/get_score",
-        { user_id: auth.user.user_id },
+        { user_id: auth.user.user_id }
       ).then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
@@ -65,6 +66,13 @@ export const Header = ({
       <Toolbar>
         <Typography variant="h5" component="div" sx={{ flexGrow: 1 }}>
           ZyBooks
+        </Typography>
+        <Typography
+          variant="h5"
+          component="div"
+          sx={{ flexGrow: 1, margin: 2, textAlign: "right" }}
+        >
+          <Link to="/query">Query</Link>
         </Typography>
         {auth && (
           <div>

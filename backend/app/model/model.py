@@ -108,8 +108,8 @@ class ContentBlock:
         self.hidden = hidden
         self.created_by = created_by
         self.sequence_number = sequence_number
-        self.text_block: Optional[TextBlock] = None
-        self.image: Optional[Image] = None
+        self.text_block: List[TextBlock] = []
+        self.image: List[Image] = []
         self.activity: List[Activity] = []
         self.can_edit = False
 
@@ -120,8 +120,8 @@ class ContentBlock:
             "created_by": self.created_by,
             "can_edit": self.can_edit,
             "sequence_number": self.sequence_number,
-            "text_block": self.text_block.to_dict() if self.text_block else None,
-            "image": self.image.to_dict() if self.image else None,
+            "text_block": [text_block.to_dict() for text_block in self.text_block] if self.text_block else None,
+            "image": [image.to_dict() for image in self.image] if self.image else None,
             "activity": [activity.to_dict() for activity in self.activity] if self.activity else None
         }
 
