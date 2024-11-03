@@ -45,9 +45,9 @@ export const Login: React.FC = () => {
   const { login } = useAuth();
 
   const fetchAllCourses = async () => {
-    const courses: CourseInfo[] = await GetRequest(
-      "/common/get_course_info",
-    ).then((response) => {
+    const courses: CourseInfo[] = await PostRequest("/common/get_course_info", {
+      user_id: undefined,
+    }).then((response) => {
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
@@ -72,7 +72,7 @@ export const Login: React.FC = () => {
           title: "Enrollment Successful",
           message: `Username: ${firstName.slice(0, 2)}${lastName.slice(
             0,
-            2,
+            2
           )}${month}${year} Password: temppass`,
         });
         setDialogOpen(true);
@@ -89,7 +89,7 @@ export const Login: React.FC = () => {
   };
   // Handle form submission
   const handleLogin = async (
-    e: React.FormEvent<HTMLFormElement>,
+    e: React.FormEvent<HTMLFormElement>
   ): Promise<void> => {
     e.preventDefault();
     setError(null);

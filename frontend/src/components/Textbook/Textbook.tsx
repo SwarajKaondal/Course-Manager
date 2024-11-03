@@ -20,6 +20,7 @@ import InputDialog from "./InputDialog";
 import ActivityDialog from "../Activity/ActivityDialog";
 
 export interface ActivityFormData {
+  question_id: string;
   question: string;
   ans_txt_1: string;
   ans_explain_1: string;
@@ -56,7 +57,6 @@ export const TextbookComponent = ({
   >();
 
   useEffect(() => {}, [textbook]);
-  console.log(textbook);
 
   const handleAddChapter = async (title: String, chapter_number: number) => {
     const response = await PostRequest("/admin/add_chapter", {
@@ -74,7 +74,7 @@ export const TextbookComponent = ({
   const handleAddSection = async (
     title: String,
     section_number: number,
-    chapter_id: number,
+    chapter_id: number
   ) => {
     const response = await PostRequest("/admin/add_section", {
       role: auth.user?.role,
@@ -90,7 +90,7 @@ export const TextbookComponent = ({
 
   const handleAddContentBlock = async (
     sequence_number: number,
-    section_id: number,
+    section_id: number
   ) => {
     const response = await PostRequest("/admin/add_content_block", {
       role: auth.user?.role,
@@ -110,7 +110,6 @@ export const TextbookComponent = ({
       content_blk_id: content_block_id,
     });
     if (response.ok) {
-      console.log("Cool");
       refreshTextbooks();
     }
   };
@@ -147,28 +146,28 @@ export const TextbookComponent = ({
         handleAddSection(
           values["title"],
           Number(values["Section Number"]),
-          Number(extraFields["chapter_id"]),
+          Number(extraFields["chapter_id"])
         );
         break;
 
       case "content_block":
         handleAddContentBlock(
           Number(values["Sequence Number"]),
-          Number(extraFields["section_id"]),
+          Number(extraFields["section_id"])
         );
         break;
 
       case "text":
         handleAddTextBlock(
           values["Text"],
-          Number(extraFields["content_blk_id"]),
+          Number(extraFields["content_blk_id"])
         );
         break;
 
       case "picture":
         handleAddImage(
           values["Image path"],
-          Number(extraFields["content_blk_id"]),
+          Number(extraFields["content_blk_id"])
         );
         break;
 
@@ -180,7 +179,7 @@ export const TextbookComponent = ({
   const handleAddContent = (
     content: String,
     fields: string[],
-    extraFields: { [key: string]: string },
+    extraFields: { [key: string]: string }
   ) => {
     setContentType(content);
     setDialogFields(fields);
@@ -196,21 +195,19 @@ export const TextbookComponent = ({
   const handleModifyContent = (content_blk_id: any) => {
     PostRequest("/ta/hideContent", {
       content_blk_id: content_blk_id,
-    }).then((response) => {
-      if (response.ok) {
-        refreshTextbooks();
-      }
-    });
+    })
+      .then((response) => {
+        if (response.ok) {
+          refreshTextbooks();
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
   };
 
   const handleDeleteContent = (content_blk_id: any) => {
-    fetch("http://127.0.0.1:5000/ta/deleteContent", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ content_blk_id: content_blk_id }), // Send the content block ID
-    })
+    PostRequest("ta/deleteContent", { content_blk_id: content_blk_id })
       .then((response) => {
         if (!response.ok) {
           throw new Error("Network response was not ok");
@@ -336,7 +333,7 @@ export const TextbookComponent = ({
                             handleAddContent(
                               "content_block",
                               ["Sequence Number"],
-                              { section_id: "" + section.section_id },
+                              { section_id: "" + section.section_id }
                             )
                           }
                           sx={{ display: viewOnly ? "none" : "" }}
@@ -392,12 +389,7 @@ export const TextbookComponent = ({
                                       })
                                     }
                                     sx={{
-                                      display:
-                                        (content.text_block !== undefined &&
-                                          content.text_block !== null) ||
-                                        viewOnly
-                                          ? "none"
-                                          : "",
+                                      display: viewOnly ? "none" : "",
                                     }}
                                   >
                                     Add Text
@@ -413,16 +405,11 @@ export const TextbookComponent = ({
                                         {
                                           content_blk_id:
                                             "" + content.content_block_id,
-                                        },
+                                        }
                                       )
                                     }
                                     sx={{
-                                      display:
-                                        (content.image !== undefined &&
-                                          content.image !== null) ||
-                                        viewOnly
-                                          ? "none"
-                                          : "",
+                                      display: viewOnly ? "none" : "",
                                     }}
                                   >
                                     Add Image
@@ -433,16 +420,11 @@ export const TextbookComponent = ({
                                     color="primary"
                                     onClick={() =>
                                       handleCreateActivity(
-                                        content.content_block_id,
+                                        content.content_block_id
                                       )
                                     }
                                     sx={{
-                                      display:
-                                        (content.activity !== undefined &&
-                                          content.activity !== null) ||
-                                        viewOnly
-                                          ? "none"
-                                          : "",
+                                      display: viewOnly ? "none" : "",
                                     }}
                                   >
                                     Add Activity
@@ -456,7 +438,7 @@ export const TextbookComponent = ({
                                       color="secondary"
                                       onClick={() =>
                                         handleModifyContent(
-                                          content.content_block_id,
+                                          content.content_block_id
                                         )
                                       }
                                       sx={{
@@ -476,7 +458,7 @@ export const TextbookComponent = ({
                                     color="secondary"
                                     onClick={() =>
                                       handleDeleteContent(
-                                        content.content_block_id,
+                                        content.content_block_id
                                       )
                                     }
                                     sx={{
@@ -493,19 +475,26 @@ export const TextbookComponent = ({
                               </AccordionSummary>
                               <Divider />
                               <AccordionDetails>
-                                <Typography variant="body1">
-                                  {content.text_block?.text}
-                                </Typography>
-                                {content.image && (
-                                  <img
-                                    src={"" + content.image?.path}
-                                    alt="Sample"
-                                    style={{
-                                      maxWidth: "100%",
-                                      height: "auto",
-                                    }}
-                                  />
-                                )}
+                                {content.text_block !== null &&
+                                  content.text_block !== undefined &&
+                                  content.text_block.map((text_block, i) => (
+                                    <Typography variant="body1">
+                                      {text_block.text}
+                                    </Typography>
+                                  ))}
+
+                                {content.image !== null &&
+                                  content.image !== undefined &&
+                                  content.image.map((image, i) => (
+                                    <img
+                                      src={"" + image.path}
+                                      alt="Sample"
+                                      style={{
+                                        maxWidth: "100%",
+                                        height: "auto",
+                                      }}
+                                    />
+                                  ))}
                                 {content.activity !== undefined &&
                                   content.activity !== null &&
                                   content.activity.length > 0 && (

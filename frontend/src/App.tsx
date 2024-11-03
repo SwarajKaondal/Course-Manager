@@ -14,6 +14,7 @@ import { Ta } from "./pages/ta/Ta";
 import { Student } from "./pages/student/Student";
 import { ProtectedRoute } from "./components/Route/ProtectedRoute";
 import { AuthProvider } from "./provider/AuthProvider";
+import { Query } from "./pages/Query";
 
 // Create routes using createBrowserRouter
 const router = createBrowserRouter([
@@ -47,6 +48,14 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <Ta />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/query",
+    element: (
+      <ProtectedRoute>
+        <Query />
       </ProtectedRoute>
     ),
   },
@@ -87,6 +96,14 @@ const App: React.FC = () => {
             element={
               <ProtectedRoute>
                 <Ta />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/query"
+            element={
+              <ProtectedRoute>
+                <Query />
               </ProtectedRoute>
             }
           />

@@ -50,8 +50,8 @@ export interface Content_block {
   created_by: User;
   sequence_number: number;
   can_edit: Boolean;
-  text_block: Text_block | undefined;
-  image: Image | undefined;
+  text_block: Text_block[] | undefined;
+  image: Image[] | undefined;
   activity: Activity[] | undefined;
 }
 

@@ -178,7 +178,7 @@ END#
 -- 9. add_activity
 DELIMITER #
 DROP FUNCTION IF EXISTS add_activity#
-CREATE FUNCTION add_activity(user_role_id INT, question VARCHAR(1023), content_blk_id INT,
+CREATE FUNCTION add_activity(user_role_id INT, question_id VARCHAR(3), question VARCHAR(1023), content_blk_id INT,
 	ans_txt_1 VARCHAR(255), ans_explain_1 VARCHAR(255), correct_1 BOOLEAN,
     ans_txt_2 VARCHAR(255), ans_explain_2 VARCHAR(255), correct_2 BOOLEAN,
     ans_txt_3 VARCHAR(255), ans_explain_3 VARCHAR(255), correct_3 BOOLEAN,
@@ -187,13 +187,12 @@ CREATE FUNCTION add_activity(user_role_id INT, question VARCHAR(1023), content_b
 	RETURNS INT
     DETERMINISTIC
 BEGIN
-	DECLARE question_id INT;
 	DECLARE student_role_id INT;
 	SELECT role_id INTO student_role_id FROM Person_Role WHERE Role_name = 'Student';
     
 	IF user_role_id != student_role_id THEN
-		INSERT INTO Activity(Question, Content_BLK_ID) VALUES
-			(question, content_blk_id);
+		INSERT INTO Activity(Question_id, Question, Content_BLK_ID) VALUES
+			(question_id, question, content_blk_id);
             
 		SELECT LAST_INSERT_ID() INTO question_id;
         
