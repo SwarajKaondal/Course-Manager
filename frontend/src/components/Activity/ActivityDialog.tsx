@@ -27,6 +27,7 @@ export const ActivityDialog: React.FC<ActivityDialogProps> = ({
   onSubmit,
 }) => {
   const [formData, setFormData] = useState<ActivityFormData>({
+    question_id: "",
     question: "",
     ans_txt_1: "",
     ans_explain_1: "",
@@ -60,15 +61,27 @@ export const ActivityDialog: React.FC<ActivityDialogProps> = ({
       <DialogTitle>Create Activity</DialogTitle>
       <DialogContent>
         <Grid container spacing={2}>
-          <Grid size={12}>
-            <TextField
-              label="Question"
-              name="question"
-              value={formData.question}
-              onChange={handleChange}
-              fullWidth
-              variant="outlined"
-            />
+          <Grid container spacing={2}>
+            <Grid size={2}>
+              <TextField
+                label="ID"
+                name="question_id"
+                value={formData.question_id}
+                onChange={handleChange}
+                fullWidth
+                variant="outlined"
+              />
+            </Grid>
+            <Grid size={10}>
+              <TextField
+                label="Question"
+                name="question"
+                value={formData.question}
+                onChange={handleChange}
+                fullWidth
+                variant="outlined"
+              />
+            </Grid>
           </Grid>
 
           {[1, 2, 3, 4].map((num) => (
