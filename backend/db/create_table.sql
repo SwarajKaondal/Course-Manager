@@ -126,12 +126,19 @@ CREATE TABLE Text_Block (
 
 CREATE TABLE Activity (
     Activity_ID INT AUTO_INCREMENT PRIMARY KEY,
-    Question_ID VARCHAR(3) NOT NULL,
-    Question VARCHAR(255) NOT NULL,
     Content_BLK_ID INT NOT NULL,
+    Question_ID VARCHAR(3) NOT NULL,
     FOREIGN KEY (Content_BLK_ID) REFERENCES Content_Block(Content_BLK_ID)
 		ON DELETE CASCADE
-        ON UPDATE CASCADE
+        ON UPDATE CASCADE,
+    FOREIGN KEY (Question_ID) REFERENCES Question(Question_ID)
+		ON DELETE CASCADE
+        ON UPDATE CASCADE,
+);
+
+CREATE TABLE Question (
+    Question_ID VARCHAR(3) NOT NULL PRIMARY KEY,
+    Question VARCHAR(255) NOT NULL,
 );
 
 CREATE TABLE Answer (
