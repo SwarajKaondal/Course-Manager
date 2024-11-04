@@ -11,11 +11,13 @@ import { useState } from "react";
 import Grid from "@mui/material/Grid2";
 import { PostRequest } from "../../utils/ApiManager";
 import { useAuth } from "../../provider/AuthProvider";
+import { useAlert } from "../Alert";
 
 export const AddFaculty = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [values, setValues] = useState<{ [key: string]: string }>({});
   const auth = useAuth();
+  const { showAlert } = useAlert();
 
   const handleInputChange =
     (fieldName: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -34,10 +36,12 @@ export const AddFaculty = () => {
       password: values["password"],
     }).then((response) => {
       if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+        showAlert("Error: " + response.statusText, "error");
+      } else {
+        showAlert("Faculty created successfully!", "success");
+        setOpenDialog(false);
+        return response.json();
       }
-      setOpenDialog(false);
-      return response.json();
     });
   };
 
