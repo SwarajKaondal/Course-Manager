@@ -15,6 +15,7 @@ import { useEffect, useState } from "react";
 import Grid from "@mui/material/Grid2";
 import { GetRequest, PostRequest } from "../../utils/ApiManager";
 import { useAuth } from "../../provider/AuthProvider";
+import { useAlert } from "../Alert";
 
 export const AddCourse = ({
   courseType,
@@ -28,6 +29,7 @@ export const AddCourse = ({
   >([]);
   const [selectedTextbook, setSelectedTextbook] = useState<string | null>(null);
   const auth = useAuth();
+  const { showAlert } = useAlert();
 
   const handleInputChange =
     (fieldName: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,10 +60,12 @@ export const AddCourse = ({
         : "/admin/add_eval_course";
     const response = await PostRequest(endpoint, payload).then((response) => {
       if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+        showAlert("Error: " + response.statusText, "error");
+      } else {
+        showAlert("Course added successfully!", "success");
+        setOpenDialog(false);
+        return response.json();
       }
-      setOpenDialog(false);
-      return response.json();
     });
   };
 

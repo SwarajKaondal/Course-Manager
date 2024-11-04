@@ -10,11 +10,13 @@ import {
 import { Activity } from "../../models/models";
 import { useAuth } from "../../provider/AuthProvider";
 import { PostRequest } from "../../utils/ApiManager";
+import { useAlert } from "../Alert";
 
 export const ActivityComponent = ({ activity }: { activity: Activity }) => {
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [explanation, setExplanation] = useState<string | null>(null);
   const auth = useAuth();
+  const { showAlert } = useAlert();
 
   const saveScore = async (score: number) => {
     const response = await PostRequest("/student/save_score", {
@@ -23,7 +25,17 @@ export const ActivityComponent = ({ activity }: { activity: Activity }) => {
       question_id: activity.question_id,
       course_id: activity.course_id,
       score: score,
-    });
+    })
+      .then((response) => {
+        if (response.ok) {
+          showAlert("Score saved successfully!", "success");
+        } else {
+          showAlert("Error: " + response.text, "error");
+        }
+      })
+      .catch((response) => {
+        showAlert("Error: " + response, "error");
+      });
   };
 
   const handleAnswerChange = (event: React.ChangeEvent<HTMLInputElement>) => {
