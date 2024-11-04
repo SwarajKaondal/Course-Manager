@@ -20,6 +20,8 @@ GET_ANSWERS = "SELECT Answer_ID, Answer_Text, Answer_Explanation, Correct FROM A
 GET_FACULTY = "SELECT P.User_ID, P.First_Name, P.Last_Name, P.Email, R.Role_name, P.Role_ID FROM Person P, Person_Role R, Course C WHERE C.course_id = %s AND C.faculty = P.user_id AND P.Role_ID = R.Role_ID"
 
 GET_ROLE = "SELECT Role_ID FROM Person WHERE User_ID = %s"
+GET_ALL_TEXTBOOKS = "SELECT Textbook_ID, Title, %s FROM Textbook"
+GET_ACTIVITY_ALL_TEXTBOOKS = 'SELECT Activity_ID, Question, Question_ID, %s FROM Activity WHERE Content_BLK_ID = %s'
 
 QUERY_MAPPING = {
     1: {
@@ -235,3 +237,72 @@ def get_query_data(query_id):
             obj[header] = result[i]
         response.append(obj)
     return jsonify(response), 200
+
+
+@common.route('/allTextbooks', methods=['POST'])
+def get_all_textbooks():
+    all_textbooks = []
+    user_role_id = request.get_json()['user_role_id']
+    textbooks = execute_raw_sql(GET_ALL_TEXTBOOKS, ('SOMETHING',))
+    print(len(textbooks))
+    for textbook in textbooks:
+        textbook = Textbook(*textbook)
+
+        # Fetch chapters in the textbook
+        chapters = execute_raw_sql(GET_CHAPTER, (textbook.textbook_id,))
+        for chapter in chapters:
+            chapter = Chapter(*chapter)
+            created_by_role = execute_raw_sql(GET_ROLE, (chapter.created_by,))
+            chapter.can_edit = can_edit(user_role_id, created_by_role[0][0])
+
+            # Fetch sections in the chapter
+            sections = execute_raw_sql(GET_SECTION, (chapter.chapter_id,))
+            for section in sections:
+                section = Section(*section)
+                created_by_role = execute_raw_sql(GET_ROLE, (section.created_by,))
+                section.can_edit = can_edit(user_role_id, created_by_role[0][0])
+
+                # Fetch content blocks in the section
+                content_blocks = execute_raw_sql(GET_CONTENT_BLOCK, (section.section_id,))
+                for content_block in content_blocks:
+                    content_block = ContentBlock(*content_block)
+                    created_by_role = execute_raw_sql(GET_ROLE, (content_block.created_by,))
+                    content_block.can_edit = can_edit(user_role_id, created_by_role[0][0])
+
+                    # Fetch images associated with the content block
+                    images = execute_raw_sql(GET_IMAGE, (content_block.content_blk_id,))
+                    for image in images:
+                        image = Image(*image)
+                        content_block.image.append(image)
+
+                    # Fetch text blocks associated with the content block
+                    text_blocks = execute_raw_sql(GET_TEXT_BLOCK, (content_block.content_blk_id,))
+                    for text_block in text_blocks:
+                        text_block = TextBlock(*text_block)
+                        content_block.text_block.append(text_block)
+
+                    # Fetch activities associated with the content block
+                    activities = execute_raw_sql(GET_ACTIVITY_ALL_TEXTBOOKS, ("SOMETHING", content_block.content_blk_id,))
+                    for activity in activities:
+                        activity = Activity(*activity)
+
+                        # Fetch answers associated with the activity
+                        answers = execute_raw_sql(GET_ANSWERS, (activity.activity_id,))
+                        if len(answers) == 4:
+                            activity.answer1 = Answer(*answers[0])
+                            activity.answer2 = Answer(*answers[1])
+                            activity.answer3 = Answer(*answers[2])
+                            activity.answer4 = Answer(*answers[3])
+
+                        content_block.activity.append(activity)
+
+                    # Append content blocks to the section
+                    section.content_blocks.append(content_block)
+
+                # Append sections to the chapter
+                chapter.sections.append(section)
+
+            # Append chapters to the textbook
+            textbook.chapters.append(chapter)
+        all_textbooks.append(textbook.to_dict())
+    return jsonify(all_textbooks), 200
