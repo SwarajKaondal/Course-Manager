@@ -40,11 +40,34 @@ QUERY_MAPPING = {
                 "INNER JOIN Person P ON T.Student_ID = P.User_ID " +
                 "INNER JOIN Person_Role R ON P.Role_ID = R.Role_ID;"
     },
-    3: "",
-    4: "",
-    5: "",
-    6: "",
-    7: "",
+    3: {
+        "headers": ["Course ID","Faculty", "Students"],
+        "query": "Select A.Course_ID, C.Faculty, Count(E.Course_ID) as Students from Active_course A " +
+                    "Inner Join Course C ON A.Course_ID = C.Course_ID " +
+                    "Inner Join Enroll E ON C.Course_ID = E.Course_ID " +
+                    "group by E.Course_ID"
+    },
+    4: {
+        "headers": ["Course ID", "Students"],
+        "query": "Select Course_ID, Count(Student_ID) as Students from Waitlist group by Course_ID order by Students desc Limit 1"
+    },
+    6: {
+        "headers": ["Answer Text", "Answer Explanation"],
+        "query": "Select AW.Answer_Text, AW.Answer_Explanation from Activity A " +
+                "Inner Join Answer AW ON A.Activity_ID = AW.Activity_ID " +
+                "where A.Content_BLK_ID = 2  " +
+                "and A.Question_ID = 'Q2' " +
+                "and AW.Correct = 0 "
+    },
+    7: {
+        "headers": ["Textbook ID", "Textbook Name"],
+        "query": "Select T.Textbook_ID, T.Title from Course C1 " +
+                "Inner Join Course C2 ON C1.Textbook_ID = C2.Textbook_ID " +
+                "Inner Join Textbook T ON C1.Textbook_ID = T.Textbook_ID " +
+                "and C1.Type = 'ACTIVE' " +
+                "and C2.Type = 'EVALUATION' " +
+                "and C1.Faculty != C2.Faculty "
+    },
 }
 
 def can_edit(role_id: int, created_by_role: int):

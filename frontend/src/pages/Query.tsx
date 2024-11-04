@@ -14,6 +14,7 @@ import {
   Typography,
 } from "@mui/material";
 import { GetRequest, PostRequest } from "../utils/ApiManager";
+import { Header } from "../components/Header/Header";
 
 export const Query = () => {
   const [selectedQuery, setSelectedQuery] = useState("");
@@ -35,7 +36,7 @@ export const Query = () => {
     const selectedValue = event.target.value;
     setSelectedQuery(selectedValue);
 
-    if (selectedValue) {
+    if (selectedValue != 5) {
       fetchData(selectedValue);
     }
   };
@@ -49,59 +50,68 @@ export const Query = () => {
         return response.json();
       }
     });
-    const headers = Object.keys(response[0]);
-    setHeaders(headers);
-    setData(response);
+    console.log(response);
+    if (response.length > 0) {
+      const headers = Object.keys(response[0]);
+      setHeaders(headers);
+      setData(response);
+    } else {
+      setData([]);
+    }
     setLoading(false);
   };
 
   return (
-    <Box p={3}>
-      <FormControl fullWidth>
-        <InputLabel>Select an Option</InputLabel>
-        <Select
-          value={selectedQuery}
-          onChange={handleSelectQuery}
-          label="Select an Option"
-        >
-          {queries.map((option) => (
-            <MenuItem key={option.value} value={option.value}>
-              {option.label}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+    <>
+      <Box p={3}>
+        <FormControl fullWidth>
+          <InputLabel>Select an Option</InputLabel>
+          <Select
+            value={selectedQuery}
+            onChange={handleSelectQuery}
+            label="Select an Option"
+          >
+            {queries.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                {option.label}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
 
-      {loading ? (
-        <Box mt={3} display="flex" justifyContent="center">
-          <CircularProgress />
-        </Box>
-      ) : data.length > 0 ? (
-        <Table sx={{ mt: 3 }} aria-label="data table">
-          <TableHead>
-            <TableRow>
-              {headers.map((header) => (
-                <TableCell key={header}>{header}</TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {data.map((item, index) => (
-              <TableRow key={index}>
+        {selectedQuery === "5" ? (
+          <Typography variant="h5">View the app for this query</Typography>
+        ) : loading ? (
+          <Box mt={3} display="flex" justifyContent="center">
+            <CircularProgress />
+          </Box>
+        ) : data.length > 0 ? (
+          <Table sx={{ mt: 3 }} aria-label="data table">
+            <TableHead>
+              <TableRow>
                 {headers.map((header) => (
-                  <TableCell key={header}>{item[header]}</TableCell>
+                  <TableCell key={header}>{header}</TableCell>
                 ))}
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      ) : (
-        selectedQuery && (
-          <Typography mt={3} variant="body1" color="textSecondary">
-            No data available.
-          </Typography>
-        )
-      )}
-    </Box>
+            </TableHead>
+            <TableBody>
+              {data.map((item, index) => (
+                <TableRow key={index}>
+                  {headers.map((header) => (
+                    <TableCell key={header}>{item[header]}</TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        ) : (
+          selectedQuery && (
+            <Typography mt={3} variant="body1" color="textSecondary">
+              No data available
+            </Typography>
+          )
+        )}
+      </Box>
+    </>
   );
 };
