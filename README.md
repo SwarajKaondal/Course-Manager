@@ -1,3 +1,10 @@
+# Team
+
+1. Swaraj Kaondal: skaonda
+2. Utsav Lal : ualal
+3. Diksha Maurya : dmaurya
+4. Vaibhavi Shetty : vshetty2
+
 # Course-Manager
 
 **CourseManager** is a learning management system that streamlines online course creation, organization, and student progress tracking.
@@ -22,3 +29,7 @@
 **Run the frontend app**:
 `npm install`
 `npm start`
+
+**Database setup**:
+Run all scripts in the db/ folder in MySQL Workbench. Start with create_table, Insert_data and then rest all the other scripts.
+
