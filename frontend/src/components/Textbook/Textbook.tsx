@@ -192,22 +192,33 @@ export const TextbookComponent = ({
     setActivityDialog(true);
   };
 
-  const handleModifyContent = (content_blk_id: any) => {
-    PostRequest("/ta/hideContent", {
-      content_blk_id: content_blk_id,
-    })
-      .then((response) => {
-        if (response.ok) {
-          refreshTextbooks();
-        }
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
+  const handleHideChapter = (chapter_id: any) => {
+    handleModify("/ta/hideChapter", { chapter_id: chapter_id });
+  };
+
+  const handleHideSection = (section_id: any) => {
+    console.log("heres");
+    handleModify("/ta/hideSection", { section_id: section_id });
+  };
+
+  const handleHideContent = (content_blk_id: any) => {
+    handleModify("/ta/hideContent", { content_blk_id: content_blk_id });
+  };
+
+  const handleDeleteChapter = (chapter_id: any) => {
+    handleModify("/ta/deleteChapter", { chapter_id: chapter_id });
+  };
+
+  const handleDeleteSection = (section_id: any) => {
+    handleModify("/ta/deleteSection", { section_id: section_id });
   };
 
   const handleDeleteContent = (content_blk_id: any) => {
-    PostRequest("ta/deleteContent", { content_blk_id: content_blk_id })
+    handleModify("/ta/deleteContent", { content_blk_id: content_blk_id });
+  };
+
+  const handleModify = (url: string, data: { [key: string]: any }) => {
+    PostRequest(url, data)
       .then((response) => {
         if (!response.ok) {
           throw new Error("Network response was not ok");
@@ -264,7 +275,8 @@ export const TextbookComponent = ({
               boxShadow: "none",
               border: "none",
               display:
-                chapter.hidden && auth.user?.role_name.toLowerCase()
+                chapter.hidden &&
+                auth.user?.role_name.toLowerCase() === "student"
                   ? "none"
                   : "",
             }}
@@ -281,6 +293,33 @@ export const TextbookComponent = ({
                 {chapter.chapter_number} {chapter.title}
               </Typography>
               <Box sx={{ ml: "auto" }}>
+                {auth.user?.role_name.toLowerCase() !== "student" && (
+                  <Button
+                    variant="outlined"
+                    startIcon={<EditIcon />}
+                    color="secondary"
+                    onClick={() => handleHideChapter(chapter.chapter_id)}
+                    sx={{
+                      display: viewOnly ? "none" : "",
+                      ml: 2,
+                    }}
+                  >
+                    {chapter.hidden ? "Unhide Chapter" : "Hide Chapter"}
+                  </Button>
+                )}
+
+                <Button
+                  variant="outlined"
+                  startIcon={<DeleteIcon />}
+                  color="secondary"
+                  onClick={() => handleDeleteChapter(chapter.chapter_id)}
+                  sx={{
+                    display: viewOnly || !chapter.can_edit ? "none" : "",
+                    ml: 2,
+                  }}
+                >
+                  Delete Content
+                </Button>
                 <Button
                   variant="outlined"
                   startIcon={<AddIcon />}
@@ -308,7 +347,8 @@ export const TextbookComponent = ({
                       boxShadow: "none",
                       border: "none",
                       display:
-                        section.hidden && auth.user?.role_name.toLowerCase()
+                        section.hidden &&
+                        auth.user?.role_name.toLowerCase() === "student"
                           ? "none"
                           : "",
                     }}
@@ -325,6 +365,38 @@ export const TextbookComponent = ({
                         {section.section_number} {section.title}
                       </Typography>
                       <Box sx={{ ml: "auto" }}>
+                        {auth.user?.role_name.toLowerCase() !== "student" && (
+                          <Button
+                            variant="outlined"
+                            startIcon={<EditIcon />}
+                            color="secondary"
+                            onClick={() =>
+                              handleHideSection(section.section_id)
+                            }
+                            sx={{
+                              display: viewOnly ? "none" : "",
+                              ml: 2,
+                            }}
+                          >
+                            {section.hidden ? "Unhide Section" : "Hide Section"}
+                          </Button>
+                        )}
+
+                        <Button
+                          variant="outlined"
+                          startIcon={<DeleteIcon />}
+                          color="secondary"
+                          onClick={() =>
+                            handleDeleteSection(section.section_id)
+                          }
+                          sx={{
+                            display:
+                              viewOnly || !section.can_edit ? "none" : "",
+                            ml: 2,
+                          }}
+                        >
+                          Delete Content
+                        </Button>
                         <Button
                           variant="outlined"
                           startIcon={<AddIcon />}
@@ -356,7 +428,7 @@ export const TextbookComponent = ({
                                 boxShadow: "none",
                                 border: "none",
                                 display:
-                                  content.hidden &&
+                                  content.hidden === 1 &&
                                   auth.user?.role_name.toLowerCase() ===
                                     "student"
                                     ? "none"
@@ -437,7 +509,7 @@ export const TextbookComponent = ({
                                       startIcon={<EditIcon />}
                                       color="secondary"
                                       onClick={() =>
-                                        handleModifyContent(
+                                        handleHideContent(
                                           content.content_block_id
                                         )
                                       }

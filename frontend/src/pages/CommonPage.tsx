@@ -5,7 +5,11 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  FormControl,
+  InputLabel,
+  MenuItem,
   Paper,
+  Select,
   Table,
   TableBody,
   TableCell,
@@ -26,6 +30,7 @@ import { GetRequest, PostRequest } from "../utils/ApiManager";
 import { AddFaculty } from "../components/AddPerson/AddFaculty";
 import { AddCourse } from "../components/Course/AddCourse";
 import { AddTextbook } from "../components/Textbook/AddTextbook";
+import { text } from "stream/consumers";
 
 export const CommonPage = ({
   courses,
@@ -54,8 +59,17 @@ export const CommonPage = ({
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState<String[]>([]);
+  const [selectedTextbook, setSelectedTextbook] = useState<string | null>(null);
+  const [textbookInfo, setTextbookInfo] = useState<Textbook[]>([]);
   const isFormValid =
     currentPassword && newPassword && newPassword === confirmPassword;
+
+  const handleTextbookChange = (event: { target: { value: string } }) => {
+    setSelectedTextbook(event.target.value as string);
+    setTextBook(
+      textbookInfo.find((t) => t.textbook_id === parseInt(event.target.value))
+    );
+  };
 
   const setSelectedTextbookForCourse = (
     textbook_id: number,
@@ -117,6 +131,9 @@ export const CommonPage = ({
   };
 
   useEffect(() => {
+    if (textbook?.course_id === "SOMETHING") {
+      return;
+    }
     if (textbook !== undefined) {
       setTextBook(
         textbooks.find(
@@ -127,6 +144,25 @@ export const CommonPage = ({
       );
     }
   }, [textbook, textbooks]);
+
+  useEffect(() => {
+    const fetchTextbooks = async () => {
+      try {
+        const response = await PostRequest("/common/allTextbooks", {
+          user_role_id: auth.user?.role,
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setTextbookInfo(data);
+        } else {
+          console.error("Failed to fetch textbooks");
+        }
+      } catch (error) {
+        console.error("Error fetching textbooks:", error);
+      }
+    };
+    fetchTextbooks();
+  }, []);
 
   useEffect(() => {
     fetchAllCourses();
@@ -178,6 +214,22 @@ export const CommonPage = ({
           <AddTextbook />
           <AddCourse courseType="active" />
           <AddCourse courseType="evaluation" />
+          <FormControl margin="normal">
+            <InputLabel>Select Textbook</InputLabel>
+            <Select
+              value={selectedTextbook || ""}
+              onChange={handleTextbookChange}
+            >
+              {textbookInfo.map((textbook) => (
+                <MenuItem
+                  key={textbook.textbook_id}
+                  value={textbook.textbook_id}
+                >
+                  {textbook.title}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </>
       )}
       {auth.user?.role_name === "Student" && (

@@ -30,7 +30,7 @@ export interface Chapter {
   chapter_id: number;
   chapter_number: String;
   title: String;
-  hidden: Boolean;
+  hidden: 1 | 0;
   can_edit: Boolean;
   sections: Section[];
 }
@@ -39,14 +39,14 @@ export interface Section {
   section_id: number;
   title: String;
   section_number: number;
-  hidden: Boolean;
+  hidden: 1 | 0;
   can_edit: Boolean;
   content_blocks: Content_block[];
 }
 
 export interface Content_block {
   content_block_id: number;
-  hidden: Boolean;
+  hidden: 1 | 0;
   created_by: User;
   sequence_number: number;
   can_edit: Boolean;

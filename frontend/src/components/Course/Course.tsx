@@ -25,6 +25,7 @@ import {
 import { useState } from "react";
 import { PostRequest } from "../../utils/ApiManager";
 import { AddTa } from "../AddPerson/AddTa";
+import { useAuth } from "../../provider/AuthProvider";
 
 export const CourseComponent = ({
   course,
@@ -45,6 +46,7 @@ export const CourseComponent = ({
   const [openStudents, setOpenStudents] = useState(false);
   const [waitlist, setWaitlist] = useState<Waitlist | null>(null);
   const [students, setStudents] = useState<User[]>([]);
+  const auth = useAuth();
 
   const fetchWaitlist = async () => {
     const response = await PostRequest("/faculty/waitlist", {
@@ -217,7 +219,10 @@ export const CourseComponent = ({
                 sx={{
                   marginBottom: 1,
                   marginTop: 1,
-                  display: viewOnly ? "none" : "",
+                  display:
+                    viewOnly || auth.user?.role_name === "Teaching Assistant"
+                      ? "none"
+                      : "",
                 }}
                 onClick={handleClickOpenWaitlist}
               >
@@ -289,7 +294,9 @@ export const CourseComponent = ({
               >
                 View Students
               </Button>
-              <AddTa course_id={course.course_id}></AddTa>
+              {auth.user?.role_name !== "Teaching Assistant" && (
+                <AddTa course_id={course.course_id}></AddTa>
+              )}
             </>
           )}
         </CardContent>
