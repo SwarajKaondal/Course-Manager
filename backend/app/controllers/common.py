@@ -42,8 +42,10 @@ QUERY_MAPPING = {
     },
     3: {
         "headers": ["Course ID","Faculty", "Students"],
-        "query": "Select A.Course_ID, C.Faculty, Count(E.Course_ID) as Students from Active_course A " +
+        "query": "Select A.Course_ID, P.First_Name, Count(E.Course_ID) as Students from Active_course A " +
                     "Inner Join Course C ON A.Course_ID = C.Course_ID " +
+                    "INNER JOIN Person P ON C.Faculty = P.User_ID " +
+                    "INNER JOIN Person_Role R ON P.Role_ID = R.Role_ID " +
                     "Inner Join Enroll E ON C.Course_ID = E.Course_ID " +
                     "group by E.Course_ID"
     },

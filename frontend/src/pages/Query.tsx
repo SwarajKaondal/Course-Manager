@@ -28,7 +28,7 @@ export const Query = () => {
     { value: "3", label: "3. Active courses" },
     { value: "4", label: "4. Largest waiting list" },
     { value: "5", label: "5. Contents of Chapter02, Textbook 101" },
-    { value: "6", label: "6. Icorrect answers of Q2 Activity0" },
+    { value: "6", label: "6. Incorrect answers of Q2 Activity0" },
     { value: "7", label: "7. Book with active and inactive status" },
   ];
 
