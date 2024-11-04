@@ -13,15 +13,19 @@ import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
 import { Avatar, Chip } from "@mui/material";
 import { useAuth } from "../../provider/AuthProvider";
+import { PostRequest } from "../../utils/ApiManager";
+import { Link } from "react-router-dom";
 
 export const Header = ({
   setChangePass,
+  setShowNotification,
 }: {
   setChangePass: (val: boolean) => void;
+  setShowNotification: (val: boolean) => void;
 }) => {
   const auth = useAuth();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const [showPassChangeDialog, setShowPassChangeDialog] = React.useState(false);
+  const [score, setScore] = React.useState<{ total: number; score: number }>();
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {};
 
@@ -38,11 +42,37 @@ export const Header = ({
     auth.logout();
   };
 
+  const getScore = async () => {
+    if (auth.user?.role_name === "Student") {
+      const result: { total: number; score: number } = await PostRequest(
+        "/student/get_score",
+        { user_id: auth.user.user_id }
+      ).then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      });
+      setScore(result);
+    }
+  };
+
+  React.useEffect(() => {
+    getScore();
+  }, []);
+
   return (
     <AppBar position="static">
       <Toolbar>
         <Typography variant="h5" component="div" sx={{ flexGrow: 1 }}>
           ZyBooks
+        </Typography>
+        <Typography
+          variant="h5"
+          component="div"
+          sx={{ flexGrow: 1, margin: 2, textAlign: "right" }}
+        >
+          <Link to="/query">Query</Link>
         </Typography>
         {auth && (
           <div>
@@ -59,8 +89,25 @@ export const Header = ({
                   {auth.user?.first_name[0] + "" + auth.user?.last_name[0]}
                 </Avatar>
               }
-              label={auth.user?.first_name + " " + auth.user?.last_name}
+              label={
+                auth.user?.first_name +
+                " " +
+                auth.user?.last_name +
+                " - " +
+                auth.user?.role_name
+              }
             />
+            {score && (
+              <Chip
+                sx={{
+                  fontSize: "1.25rem",
+                  padding: "12px 20px",
+                  height: "50px",
+                }}
+                label={"Score:" + score.score + "/" + score.total}
+              />
+            )}
+
             <Menu
               id="menu-appbar"
               anchorEl={anchorEl}
@@ -77,6 +124,9 @@ export const Header = ({
               onClose={handleClose}
             >
               <MenuItem onClick={handleLogout}>Logout</MenuItem>
+              <MenuItem onClick={() => setShowNotification(true)}>
+                Notifications
+              </MenuItem>
               <MenuItem onClick={() => setChangePass(true)}>
                 Change Password
               </MenuItem>

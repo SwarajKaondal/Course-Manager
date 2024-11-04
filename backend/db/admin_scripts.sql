@@ -35,7 +35,7 @@ END#
 -- 3. create_textbook
 DELIMITER #
 DROP FUNCTION IF EXISTS create_textbook#
-CREATE FUNCTION create_textbook(user_role_id INT, title VARCHAR(255), course_id VARCHAR(50))
+CREATE FUNCTION create_textbook(user_role_id INT, title VARCHAR(255))
 	RETURNS INT
     DETERMINISTIC
 BEGIN
@@ -43,8 +43,8 @@ BEGIN
     SELECT role_id INTO admin_role_id FROM Person_Role WHERE Role_name = 'Admin';
     
     IF user_role_id = admin_role_id THEN
-		INSERT INTO Textbook (Title, Course_ID) VALUES
-			(title, course_id);
+		INSERT INTO Textbook (Title) VALUES
+			(title);
 		RETURN 1;
     ELSE
 		SIGNAL SQLSTATE '45000'
@@ -58,7 +58,7 @@ END#
 -- 4. add_chapter
 DELIMITER #
 DROP FUNCTION IF EXISTS add_chapter#
-CREATE FUNCTION add_chapter(user_role_id INT, title VARCHAR(255), chapter_number INT, textbook_id INT)
+CREATE FUNCTION add_chapter(user_role_id INT, title VARCHAR(255), chapter_number INT, textbook_id INT, user_id VARCHAR(255))
 	RETURNS INT
     DETERMINISTIC
 BEGIN
@@ -69,8 +69,8 @@ BEGIN
     SET chapter_number_str = CONCAT('chap',LPAD(chapter_number, 2, '0'));
     
 	IF user_role_id != student_role_id THEN
-		INSERT INTO Chapter(Chapter_number, Title, Textbook_ID) VALUES
-			(chapter_number_str, title, textbook_id);
+		INSERT INTO Chapter(Chapter_number, Title, Textbook_ID, Created_By) VALUES
+			(chapter_number_str, title, textbook_id, user_id);
 		RETURN 1;
     ELSE
 		SIGNAL SQLSTATE '45000'
@@ -85,7 +85,7 @@ END#
 -- 5. add_section
 DELIMITER #
 DROP FUNCTION IF EXISTS add_section#
-CREATE FUNCTION add_section(user_role_id INT, title VARCHAR(255), section_number INT, chapter_id INT)
+CREATE FUNCTION add_section(user_role_id INT, title VARCHAR(255), section_number INT, chapter_id INT, user_id VARCHAR(255))
 	RETURNS INT
     DETERMINISTIC
 BEGIN
@@ -93,8 +93,8 @@ BEGIN
 	SELECT role_id INTO student_role_id FROM Person_Role WHERE Role_name = 'Student';
     
 	IF user_role_id != student_role_id THEN
-		INSERT INTO Section(Section_number, Title, Chapter_ID) VALUES
-			(section_number, title, chapter_id);
+		INSERT INTO Section(Section_number, Title, Chapter_ID, Created_By) VALUES
+			(section_number, title, chapter_id, user_id);
 		RETURN 1;
     ELSE
 		SIGNAL SQLSTATE '45000'
@@ -178,7 +178,7 @@ END#
 -- 9. add_activity
 DELIMITER #
 DROP FUNCTION IF EXISTS add_activity#
-CREATE FUNCTION add_activity(user_role_id INT, question VARCHAR(1023), content_blk_id INT,
+CREATE FUNCTION add_activity(user_role_id INT, question_id VARCHAR(3), question VARCHAR(1023), content_blk_id INT,
 	ans_txt_1 VARCHAR(255), ans_explain_1 VARCHAR(255), correct_1 BOOLEAN,
     ans_txt_2 VARCHAR(255), ans_explain_2 VARCHAR(255), correct_2 BOOLEAN,
     ans_txt_3 VARCHAR(255), ans_explain_3 VARCHAR(255), correct_3 BOOLEAN,
@@ -187,13 +187,12 @@ CREATE FUNCTION add_activity(user_role_id INT, question VARCHAR(1023), content_b
 	RETURNS INT
     DETERMINISTIC
 BEGIN
-	DECLARE question_id INT;
 	DECLARE student_role_id INT;
 	SELECT role_id INTO student_role_id FROM Person_Role WHERE Role_name = 'Student';
     
 	IF user_role_id != student_role_id THEN
-		INSERT INTO Activity(Question, Content_BLK_ID) VALUES
-			(question, content_blk_id);
+		INSERT INTO Activity(Question_id, Question, Content_BLK_ID) VALUES
+			(question_id, question, content_blk_id);
             
 		SELECT LAST_INSERT_ID() INTO question_id;
         
@@ -222,7 +221,7 @@ END#
 -- 10. add_active_course
 DELIMITER #
 DROP FUNCTION IF EXISTS add_active_course#
-CREATE FUNCTION add_active_course(user_role_id INT, course_id VARCHAR(50), course_name VARCHAR(255), faculty VARCHAR(50), start_date DATE, end_date DATE, token VARCHAR(255), course_cap INT)
+CREATE FUNCTION add_active_course(user_role_id INT, course_id VARCHAR(50), course_name VARCHAR(255), faculty VARCHAR(50), start_date DATE, end_date DATE, Textbook_ID INT, token VARCHAR(255), course_cap INT)
 	RETURNS INT
     DETERMINISTIC
 BEGIN
@@ -230,8 +229,8 @@ BEGIN
     SELECT role_id INTO admin_role_id FROM Person_Role WHERE Role_name = 'Admin';
     
 	IF user_role_id = admin_role_id THEN
-		INSERT INTO Course(Course_ID, Title, Faculty, Start_Date, End_Date, Type) VALUES
-			(course_id, course_name, faculty, start_date, end_date, 'ACTIVE');
+		INSERT INTO Course(Course_ID, Title, Faculty, Start_Date, End_Date, Type, Textbook_ID) VALUES
+			(course_id, course_name, faculty, start_date, end_date, 'ACTIVE',Textbook_ID);
 		
 		INSERT INTO Active_Course(Course_ID, Token, Course_Capacity)
 		VALUES(course_id, token, course_cap);
@@ -248,7 +247,7 @@ END#
 -- 11. add_eval_course
 DELIMITER #
 DROP FUNCTION IF EXISTS add_eval_course#
-CREATE FUNCTION add_eval_course(user_role_id INT, course_id VARCHAR(50), course_name VARCHAR(255), faculty VARCHAR(50), start_date DATE, end_date DATE)
+CREATE FUNCTION add_eval_course(user_role_id INT, course_id VARCHAR(50), course_name VARCHAR(255), faculty VARCHAR(50), start_date DATE, end_date DATE, Textbook_ID INT)
 	RETURNS INT
     DETERMINISTIC
 BEGIN
@@ -256,8 +255,8 @@ BEGIN
     SELECT role_id INTO admin_role_id FROM Person_Role WHERE Role_name = 'Admin';
     
 	IF user_role_id = admin_role_id THEN
-		INSERT INTO Course(Course_ID, Title, Faculty, Start_Date, End_Date, Type) VALUES
-			(course_id, course_name, faculty, start_date, end_date, 'EVALUATION');
+		INSERT INTO Course(Course_ID, Title, Faculty, Start_Date, End_Date, Type, Textbook_ID) VALUES
+			(course_id, course_name, faculty, start_date, end_date, 'EVALUATION', Textbook_ID);
 
 		RETURN 1;
     ELSE

@@ -1,3 +1,4 @@
+from datetime import datetime
 from mysql.connector import pooling
 import os
 from flask import request, jsonify, abort
@@ -108,9 +109,12 @@ def execute_query(query, params, success_msg):
         cursor.close()
         conn.close()
 
-def save_score(query):
+def save_score():
+    DELETE_SCORE = "DELETE FROM Score WHERE User_ID = %s AND Activity_ID = %s AND Question_ID = %s AND Course_ID = %s"
+    SAVE_SCORE = "INSERT INTO Score(User_ID, Activity_ID, Question_ID, Course_ID, TStamp, Score) VALUES(%s, %s, %s, %s, now(), %s)"
+
     data = request.get_json()
-    user_id = data.get( 'user_id')
+    user_id = data.get('user_id')
     course_id = data.get('course_id')
     question_id = data.get('question_id')
     activity_id = data.get('activity_id')
@@ -119,12 +123,11 @@ def save_score(query):
     conn = connection_pool.get_connection()
     cursor = conn.cursor()
     try:
-        cursor.execute(query, [user_id,course_id,question_id,activity_id,score])
-        result = cursor.fetchone()
-
-        if result and result[0] == 1:
-            conn.commit()
-            return jsonify({'message': 'Scores saved'}), 200
+        print(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+        cursor.execute(DELETE_SCORE, [user_id,activity_id,question_id,course_id])
+        cursor.execute(SAVE_SCORE, [user_id,activity_id,question_id,course_id,score])
+        conn.commit()
+        return jsonify({'message': 'Scores saved'}), 200
 
     except mysql.connector.Error as err:
         abort(500, description=f"Database error: {str(err)}")

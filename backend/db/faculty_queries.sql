@@ -13,8 +13,10 @@ BEGIN
 END; //
 DELIMITER ;
 
-DELIMITER //
+
 DROP TRIGGER IF EXISTS after_enroll_insert;
+DELIMITER //
+
 CREATE TRIGGER after_enroll_insert
 AFTER INSERT ON ENROLL
 FOR EACH ROW
@@ -27,21 +29,68 @@ BEGIN
     INTO enrolled_count 
     FROM ENROLL
     WHERE Course_ID = NEW.Course_ID;
+    
+    
 
     -- Get the capacity of the course
     SELECT Course_Capacity 
     INTO course_capacity
     FROM Active_Course AC
     WHERE AC.Course_ID = NEW.Course_ID;
+    
+    
 
     -- Check if the capacity is reached
     IF enrolled_count >= course_capacity THEN
-        -- Delete all students from the waitlist for the course
-        DELETE FROM Waitlist 
-        WHERE Course_ID = NEW.Course_ID;
+        -- Call procedure to notify students on the waitlist and remove them
+        
+        CALL send_course_full_notification(NEW.Course_ID);
+        
+        DELETE FROM Waitlist WHERE Course_ID = NEW.Course_ID;
+        
+        
     END IF;
 END; //
 DELIMITER ;
+
+DROP PROCEDURE IF EXISTS send_course_full_notification;
+DELIMITER //
+
+CREATE PROCEDURE send_course_full_notification(IN course_id VARCHAR(255))
+BEGIN
+    DECLARE done INT DEFAULT FALSE;
+    DECLARE student_id VARCHAR(255);
+
+    -- Cursor to select students from the Waitlist table for the specified course_id
+    DECLARE waitlist_cursor CURSOR FOR SELECT W.student_id FROM Waitlist W WHERE W.Course_ID = course_id;
+
+    -- Handler to exit loop when no more rows are found in the cursor
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+
+    -- Open cursor
+    OPEN waitlist_cursor;
+
+    -- Loop through each student in the cursor
+    read_loop: LOOP
+        FETCH waitlist_cursor INTO student_id;
+
+        IF done THEN
+            LEAVE read_loop;
+        END IF;
+
+        -- Check that student_id is not NULL before inserting
+        IF student_id IS NOT NULL THEN
+            -- Insert notification for each student on the waitlist
+            INSERT INTO Notification (Notification_Text, User_Id) 
+            VALUES (CONCAT('Course ', course_id, ' is full; you have been removed from the waitlist.'), student_id);
+        END IF;
+    END LOOP;
+
+    -- Close cursor after processing
+    CLOSE waitlist_cursor;
+END; //
+DELIMITER ;
+
 
 -- Procedure to approve enrollments
 DROP PROCEDURE IF EXISTS faculty_approve_student;
@@ -131,3 +180,37 @@ BEGIN
   RETURN 1;
   
 END#
+
+DELIMITER ;
+
+
+-- add new TA
+DROP PROCEDURE IF EXISTS faculty_add_ta;
+DELIMITER //
+CREATE PROCEDURE faculty_add_ta(IN user_role_id INT, IN first_name VARCHAR(255), IN last_name VARCHAR(255), IN email VARCHAR(255), IN default_password VARCHAR(255), IN course_id VARCHAR(255))
+BEGIN
+	DECLARE ta_role_id INT;
+    DECLARE faculty_role_id INT;
+    DECLARE new_user_id VARCHAR(8);
+    SELECT role_id INTO ta_role_id FROM Person_Role WHERE Role_name = 'Teaching Assistant';
+    SELECT role_id INTO faculty_role_id FROM Person_Role WHERE Role_name = 'Faculty';
+	
+    IF user_role_id = faculty_role_id THEN
+		SET new_user_id = CONCAT(
+            SUBSTRING(First_name, 1, 2),
+            SUBSTRING(Last_name, 1, 2),
+            DATE_FORMAT(CURDATE(), '%m%y')
+            );
+            
+		INSERT INTO Person (User_ID, First_name, Last_name, Email, Password, Created_On, Role_ID) VALUES
+			(new_user_id, first_name, last_name, email, default_password, CURDATE(), ta_role_id);
+		
+        INSERT INTO Teaching_Assistant (Course_ID, Student_ID) 
+        VALUES (course_id, new_user_id);
+    ELSE
+		SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'User does not have the permission to create a faculty';
+	END IF;
+END; //
+
+DELIMITER ;

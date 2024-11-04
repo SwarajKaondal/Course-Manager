@@ -17,6 +17,7 @@ DROP TABLE IF EXISTS Course;
 DROP TABLE IF EXISTS Textbook;
 DROP TABLE IF EXISTS Person;
 DROP TABLE IF EXISTS Person_Role;
+DROP TABLE IF EXISTS Debug_Log;
 
 
 CREATE TABLE Person_Role (
@@ -75,6 +76,8 @@ CREATE TABLE Chapter (
     Hidden BOOLEAN NOT NULL DEFAULT FALSE,
     Title VARCHAR(255) NOT NULL,
     Textbook_ID INT NOT NULL,
+    Created_By VARCHAR(50) NOT NULL,
+    FOREIGN KEY (Created_By) REFERENCES Person(User_ID),
     CONSTRAINT unique_chapter UNIQUE(Textbook_ID, Chapter_number),
     FOREIGN KEY (Textbook_ID) REFERENCES Textbook(Textbook_ID)
 		ON DELETE CASCADE
@@ -87,6 +90,8 @@ CREATE TABLE Section (
     Section_number char(5) NOT NULL,
     Chapter_ID INT NOT NULL,
     Hidden BOOLEAN NOT NULL DEFAULT FALSE,
+	Created_By VARCHAR(50) NOT NULL,
+    FOREIGN KEY (Created_By) REFERENCES Person(User_ID),
     CONSTRAINT unique_section UNIQUE(Chapter_ID, Section_number),
     FOREIGN KEY (Chapter_ID) REFERENCES Chapter(Chapter_ID)
 		ON DELETE CASCADE
@@ -118,7 +123,7 @@ CREATE TABLE Image (
 CREATE TABLE Text_Block (
     Text_BLK_ID INT AUTO_INCREMENT PRIMARY KEY,
     Text TEXT NOT NULL,
-    Content_BLK_ID INT UNIQUE NOT NULL,
+    Content_BLK_ID INT NOT NULL,
     FOREIGN KEY (Content_BLK_ID) REFERENCES Content_Block(Content_BLK_ID)
 		ON DELETE CASCADE
         ON UPDATE CASCADE
@@ -200,8 +205,8 @@ CREATE TABLE Teaching_Assistant (
 );
 
 CREATE TABLE Notification (
-    Notification_ID INT PRIMARY KEY,
-    Text VARCHAR(255) NOT NULL,
+    Notification_ID INT PRIMARY KEY AUTO_INCREMENT,
+    Notification_Text Text NOT NULL,
     User_ID VARCHAR(50) NOT NULL,
     FOREIGN KEY (User_ID) REFERENCES Person(User_ID)
 		ON DELETE CASCADE
@@ -215,7 +220,7 @@ CREATE TABLE Score (
     Activity_ID INT,
     TStamp DATETIME NOT NULL,
     Score INT NOT NULL,
-    PRIMARY KEY (User_ID, Activity_ID, Question_ID),
+    PRIMARY KEY (User_ID, Activity_ID, Question_ID, Course_ID),
     FOREIGN KEY (User_ID) REFERENCES Person(User_ID)
         ON DELETE CASCADE
         ON UPDATE CASCADE,

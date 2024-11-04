@@ -22,6 +22,7 @@ export interface Course {
 export interface Textbook {
   textbook_id: number;
   title: String;
+  course_id: String;
   chapters: Chapter[] | undefined;
 }
 
@@ -29,6 +30,8 @@ export interface Chapter {
   chapter_id: number;
   chapter_number: String;
   title: String;
+  hidden: Boolean;
+  can_edit: Boolean;
   sections: Section[];
 }
 
@@ -36,16 +39,19 @@ export interface Section {
   section_id: number;
   title: String;
   section_number: number;
+  hidden: Boolean;
+  can_edit: Boolean;
   content_blocks: Content_block[];
 }
 
 export interface Content_block {
   content_block_id: number;
-  hidden: number;
+  hidden: Boolean;
   created_by: User;
   sequence_number: number;
-  text_block: Text_block | undefined;
-  image: Image | undefined;
+  can_edit: Boolean;
+  text_block: Text_block[] | undefined;
+  image: Image[] | undefined;
   activity: Activity[] | undefined;
 }
 
@@ -61,6 +67,8 @@ export interface Text_block {
 
 export interface Activity {
   activity_id: number;
+  question_id: String;
+  course_id: String;
   question: String;
   answer1: Answer;
   answer2: Answer;
@@ -89,4 +97,11 @@ export interface Waitlist {
 export interface Role {
   role: number;
   role_name: String;
+}
+
+export interface CourseInfo {
+  Title: string;
+  Course_Id: string;
+  Token: string;
+  Capacity: number;
 }

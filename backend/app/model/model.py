@@ -67,9 +67,11 @@ class Image:
 
 
 class Activity:
-    def __init__(self, activity_id: int, question: str):
+    def __init__(self, activity_id: int, question: str, question_id: str, course_id: str):
         self.activity_id = activity_id
         self.question = question
+        self.question_id = question_id
+        self.course_id = course_id
         self.answer1: Answer | None = None
         self.answer2: Answer | None = None
         self.answer3: Answer | None = None
@@ -79,6 +81,8 @@ class Activity:
         return {
             "activity_id": self.activity_id,
             "question": self.question,
+            "question_id": self.question_id,
+            "course_id": self.course_id,
             "answer1": self.answer1.to_dict() if self.answer1 else None,
             "answer2": self.answer2.to_dict() if self.answer2 else None,
             "answer3": self.answer3.to_dict() if self.answer3 else None,
@@ -104,64 +108,78 @@ class ContentBlock:
         self.hidden = hidden
         self.created_by = created_by
         self.sequence_number = sequence_number
-        self.text_block: Optional[TextBlock] = None
-        self.image: Optional[Image] = None
+        self.text_block: List[TextBlock] = []
+        self.image: List[Image] = []
         self.activity: List[Activity] = []
+        self.can_edit = False
 
     def to_dict(self):
         return {
             "content_block_id": self.content_blk_id,
             "hidden": self.hidden,
             "created_by": self.created_by,
+            "can_edit": self.can_edit,
             "sequence_number": self.sequence_number,
-            "text_block": self.text_block.to_dict() if self.text_block else None,
-            "image": self.image.to_dict() if self.image else None,
+            "text_block": [text_block.to_dict() for text_block in self.text_block] if self.text_block else None,
+            "image": [image.to_dict() for image in self.image] if self.image else None,
             "activity": [activity.to_dict() for activity in self.activity] if self.activity else None
         }
 
 
 class Section:
-    def __init__(self, section_id: int, title: str, section_number: int):
+    def __init__(self, section_id: int, title: str, section_number: int, hidden: bool, created_by: str):
         self.section_id = section_id
         self.title = title
         self.section_number = section_number
         self.content_blocks: List[ContentBlock] = []
+        self.hidden = hidden
+        self.can_edit = False
+        self.created_by = created_by
 
     def to_dict(self):
         return {
             "section_id": self.section_id,
             "title": self.title,
             "section_number": self.section_number,
+            "hidden": self.hidden,
+            "can_edit": self.can_edit,
             "content_blocks": [block.to_dict() for block in self.content_blocks]
         }
 
 
 class Chapter:
-    def __init__(self, chapter_id: int, chapter_number: str, title: str):
+    def __init__(self, chapter_id: int, chapter_number: str, title: str, hidden: bool, created_by: str):
         self.chapter_id = chapter_id
         self.chapter_number = chapter_number
         self.title = title
         self.sections: List[Section] = []
+        self.hidden: bool = hidden
+        self.can_edit = False
+        self.created_by = created_by
 
     def to_dict(self):
         return {
             "chapter_id": self.chapter_id,
             "chapter_number": self.chapter_number,
             "title": self.title,
+            "hidden": self.hidden,
+            "can_edit": self.can_edit,
             "sections": [section.to_dict() for section in self.sections]
         }
 
 
 class Textbook:
-    def __init__(self, textbook_id: int, title: str):
+    def __init__(self, textbook_id: int, title: str, course_id: str):
         self.textbook_id = textbook_id
         self.title = title
+        self.course_id = course_id
         self.chapters: List[Chapter] = []
 
     def to_dict(self):
         return {
             "textbook_id": self.textbook_id,
             "title": self.title,
+            "course_id": self.course_id,
             "chapters": [chapter.to_dict() for chapter in self.chapters]
         }
 
@@ -253,4 +271,13 @@ class Waitlist:
         return {
             "course_id": self.course_id,
             "students": [student.to_dict() for student in self.students]
+        }
+
+class Notification:
+    def __init__(self, user_id: str, message: List[str]):
+        self.message: List[str] = message
+
+    def to_dict(self):
+        return {
+            "messages": [message for message in self.message]
         }

@@ -33,3 +33,8 @@ def get_courses():
         print(*row)
         course_list.append(CourseList(*row).to_dict())
     return jsonify(course_list), 200
+
+@faculty.route('/ta', methods=['POST'])
+def add_ta():
+    result = call_procedure('faculty_add_ta', ['user_role_id', 'first_name', 'last_name', 'email', 'password','course_id'])
+    return jsonify(result), 200

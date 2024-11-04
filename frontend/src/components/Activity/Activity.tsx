@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -10,19 +10,32 @@ import {
 import { Activity } from "../../models/models";
 import { useAuth } from "../../provider/AuthProvider";
 import { PostRequest } from "../../utils/ApiManager";
+import { useAlert } from "../Alert";
 
 export const ActivityComponent = ({ activity }: { activity: Activity }) => {
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [explanation, setExplanation] = useState<string | null>(null);
   const auth = useAuth();
+  const { showAlert } = useAlert();
 
   const saveScore = async (score: number) => {
     const response = await PostRequest("/student/save_score", {
-      role: auth.user?.role,
       user_id: auth.user?.user_id,
       activity_id: activity.activity_id,
+      question_id: activity.question_id,
+      course_id: activity.course_id,
       score: score,
-    });
+    })
+      .then((response) => {
+        if (response.ok) {
+          showAlert("Score saved successfully!", "success");
+        } else {
+          showAlert("Error: " + response.text, "error");
+        }
+      })
+      .catch((response) => {
+        showAlert("Error: " + response, "error");
+      });
   };
 
   const handleAnswerChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -50,21 +63,25 @@ export const ActivityComponent = ({ activity }: { activity: Activity }) => {
       <Typography variant="h6">{activity.question}</Typography>
       <RadioGroup value={selectedAnswer} onChange={handleAnswerChange}>
         <FormControlLabel
+          disabled={auth.user?.role_name !== "Student"}
           value={activity.answer1.answer_id}
           control={<Radio />}
           label={activity.answer1.answer_text}
         />
         <FormControlLabel
+          disabled={auth.user?.role_name !== "Student"}
           value={activity.answer2.answer_id}
           control={<Radio />}
           label={activity.answer2.answer_text}
         />
         <FormControlLabel
+          disabled={auth.user?.role_name !== "Student"}
           value={activity.answer3.answer_id}
           control={<Radio />}
           label={activity.answer3.answer_text}
         />
         <FormControlLabel
+          disabled={auth.user?.role_name !== "Student"}
           value={activity.answer4.answer_id}
           control={<Radio />}
           label={activity.answer4.answer_text}
