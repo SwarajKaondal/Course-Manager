@@ -178,6 +178,7 @@ export const CommonPage = ({
           <AddTextbook />
           <AddCourse courseType="active" />
           <AddCourse courseType="evaluation" />
+          Textbook dropdown | Add edit and delete on chapter, section
         </>
       )}
       {auth.user?.role_name === "Student" && (

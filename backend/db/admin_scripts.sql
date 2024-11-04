@@ -226,9 +226,14 @@ CREATE FUNCTION add_active_course(user_role_id INT, course_id VARCHAR(50), cours
     DETERMINISTIC
 BEGIN
 	DECLARE admin_role_id INT;
+    DECLARE faculty_role_id INT;
+    DECLARE assigned_faculty_role_id INT;
     SELECT role_id INTO admin_role_id FROM Person_Role WHERE Role_name = 'Admin';
+    SELECT role_id INTO faculty_role_id FROM Person_Role WHERE Role_name = 'Faculty';
+    SELECT role_id INTO assigned_faculty_role_id from Person P where P.user_id = faculty;
+
     
-	IF user_role_id = admin_role_id THEN
+	IF user_role_id = admin_role_id AND faculty_role_id = assigned_faculty_role_id THEN
 		INSERT INTO Course(Course_ID, Title, Faculty, Start_Date, End_Date, Type, Textbook_ID) VALUES
 			(course_id, course_name, faculty, start_date, end_date, 'ACTIVE',Textbook_ID);
 		

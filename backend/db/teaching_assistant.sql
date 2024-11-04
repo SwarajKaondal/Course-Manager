@@ -30,7 +30,7 @@ BEGIN
 
 	DECLARE current_hidden bool;
     
-    SELECT C.Hidden INTO current_hidden FROM Section S WHERE S.section_id = section_id;
+    SELECT S.Hidden INTO current_hidden FROM Section S WHERE S.section_id = section_id;
     
     IF current_hidden = TRUE THEN
 		UPDATE Section S
