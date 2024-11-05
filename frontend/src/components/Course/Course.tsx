@@ -26,6 +26,8 @@ import { useState } from "react";
 import { PostRequest } from "../../utils/ApiManager";
 import { AddTa } from "../AddPerson/AddTa";
 import { useAuth } from "../../provider/AuthProvider";
+import { useAlert } from "../Alert";
+const { showAlert } = useAlert();
 
 export const CourseComponent = ({
   course,
@@ -44,6 +46,7 @@ export const CourseComponent = ({
 }) => {
   const [openWaitlist, setOpenWaitlist] = useState(false);
   const [openStudents, setOpenStudents] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
   const [waitlist, setWaitlist] = useState<Waitlist | null>(null);
   const [students, setStudents] = useState<User[]>([]);
   const auth = useAuth();
@@ -54,7 +57,12 @@ export const CourseComponent = ({
     });
     if (response.ok) {
       const data = (await response.json()) as Waitlist;
+      showAlert("Waitlist fetched Successfully!", "success");
       return data;
+    }
+    else {
+      showAlert("Error: " + response.statusText, "error");
+      setOpenDialog(false);
     }
   };
 
@@ -64,7 +72,12 @@ export const CourseComponent = ({
     });
     if (response.ok) {
       const data = (await response.json()) as User[];
+      showAlert("Students fetched Successfully!", "success");
       return data;
+    }
+    else{
+      showAlert("Error: " + response.statusText, "error");
+      setOpenDialog(false);
     }
   };
 
@@ -101,8 +114,12 @@ export const CourseComponent = ({
       fetchWaitlist().then((res) => {
         if (res !== undefined) {
           setWaitlist(res);
+          showAlert("Waitlist approved Successfully!", "success");
         }
       });
+    } else{
+      showAlert("Error: " + response.statusText, "error");
+      setOpenDialog(false);
     }
   };
 
