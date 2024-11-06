@@ -31,6 +31,7 @@ import { AddFaculty } from "../components/AddPerson/AddFaculty";
 import { AddCourse } from "../components/Course/AddCourse";
 import { AddTextbook } from "../components/Textbook/AddTextbook";
 import { text } from "stream/consumers";
+import { useAlert } from "../components/Alert";
 
 export const CommonPage = ({
   courses,
@@ -50,6 +51,7 @@ export const CommonPage = ({
   showStudents: Boolean;
 }) => {
   const auth = useAuth();
+  const { showAlert } = useAlert();
 
   const [allCourses, setAllCourses] = useState<CourseInfo[]>([]);
   const [textbook, setTextBook] = useState<Textbook | undefined>(undefined);
@@ -67,20 +69,20 @@ export const CommonPage = ({
   const handleTextbookChange = (event: { target: { value: string } }) => {
     setSelectedTextbook(event.target.value as string);
     setTextBook(
-      textbookInfo.find((t) => t.textbook_id === parseInt(event.target.value))
+      textbookInfo.find((t) => t.textbook_id === parseInt(event.target.value)),
     );
   };
 
   const setSelectedTextbookForCourse = (
     textbook_id: number,
-    course_id: String
+    course_id: String,
   ) => {
     setTextBook(
       textbooks.find(
         (textbook) =>
           textbook.textbook_id === textbook_id &&
-          textbook.course_id == course_id
-      )
+          textbook.course_id == course_id,
+      ),
     );
   };
 
@@ -139,8 +141,8 @@ export const CommonPage = ({
         textbooks.find(
           (textbook_) =>
             textbook_.textbook_id === textbook.textbook_id &&
-            textbook_.course_id == textbook.course_id
-        )
+            textbook_.course_id == textbook.course_id,
+        ),
       );
     }
   }, [textbook, textbooks]);
@@ -173,7 +175,7 @@ export const CommonPage = ({
   const fetchAllCourses = async () => {
     let course_infos: CourseInfo[] = await PostRequest(
       "/common/get_course_info",
-      { user_id: auth.user?.user_id }
+      { user_id: auth.user?.user_id },
     ).then((response) => {
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -181,7 +183,7 @@ export const CommonPage = ({
       return response.json();
     });
     course_infos = course_infos.filter(
-      (c) => !courses.map((c1) => c1.course_id).includes(c.Course_Id)
+      (c) => !courses.map((c1) => c1.course_id).includes(c.Course_Id),
     );
     setAllCourses(course_infos);
   };
@@ -193,6 +195,8 @@ export const CommonPage = ({
     });
     if (response.ok) {
       fetchAllCourses();
+    } else {
+      showAlert("Course is full, cannot enroll", "error");
     }
   };
 
@@ -280,7 +284,7 @@ export const CommonPage = ({
                             onClick={() =>
                               handleEnroll(
                                 auth.user !== null ? auth.user.email : "",
-                                course.Token as String
+                                course.Token as String,
                               )
                             }
                           >

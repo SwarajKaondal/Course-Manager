@@ -37,7 +37,7 @@ export const AlertProvider: React.FC<AlertProviderProps> = ({ children }) => {
 
   const handleClose = (
     event?: React.SyntheticEvent | Event,
-    reason?: string
+    reason?: string,
   ) => {
     if (reason === "clickaway") return;
     setSnackbar((prev) => ({ ...prev, open: false }));
@@ -50,7 +50,7 @@ export const AlertProvider: React.FC<AlertProviderProps> = ({ children }) => {
         open={snackbar.open}
         autoHideDuration={4000}
         onClose={handleClose}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
       >
         <MUIAlert
           onClose={handleClose}
