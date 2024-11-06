@@ -165,12 +165,11 @@ INSERT INTO Enroll (Course_ID, Student_ID) VALUES
 
 -- Insert data into Waitlist
 INSERT INTO Waitlist (Course_ID, Student_ID) VALUES
-('NCSUSaraCSC326F25', 'ErPe1024'),
-('NCSUSaraCSC326F25', 'AlAr1024'),
-('NCSUJegiCSC522F24', 'FiWi1024'),
-('NCSUSaraCSC326F25', 'LeMe1024'),
-('NCSUSaraCSC326F25', 'ArMo1024'),
-('NCSUJegiCSC522F24', 'LiGa1024');
+('NCSUOganCSC540F24', 'SiHa1024'),
+('NCSUOganCSC540F24', 'AlAr1024'),
+('NCSUOganCSC440F24', 'FiWi1024'),
+('NCSUOganCSC540F24', 'LeMe1024'),
+('NCSUOganCSC540F24', 'FiWi1024'),
 
 -- Insert data into Teaching_Assistant
 INSERT INTO Teaching_Assistant (Course_ID, Student_ID) VALUES
