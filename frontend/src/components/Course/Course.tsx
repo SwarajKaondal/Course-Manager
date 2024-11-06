@@ -27,7 +27,6 @@ import { PostRequest } from "../../utils/ApiManager";
 import { AddTa } from "../AddPerson/AddTa";
 import { useAuth } from "../../provider/AuthProvider";
 import { useAlert } from "../Alert";
-const { showAlert } = useAlert();
 
 export const CourseComponent = ({
   course,
@@ -44,6 +43,7 @@ export const CourseComponent = ({
   showWaitlist: Boolean;
   showStudents: Boolean;
 }) => {
+  const { showAlert } = useAlert();
   const [openWaitlist, setOpenWaitlist] = useState(false);
   const [openStudents, setOpenStudents] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
@@ -59,8 +59,7 @@ export const CourseComponent = ({
       const data = (await response.json()) as Waitlist;
       showAlert("Waitlist fetched Successfully!", "success");
       return data;
-    }
-    else {
+    } else {
       showAlert("Error: " + response.statusText, "error");
       setOpenDialog(false);
     }
@@ -74,8 +73,7 @@ export const CourseComponent = ({
       const data = (await response.json()) as User[];
       showAlert("Students fetched Successfully!", "success");
       return data;
-    }
-    else{
+    } else {
       showAlert("Error: " + response.statusText, "error");
       setOpenDialog(false);
     }
@@ -117,7 +115,7 @@ export const CourseComponent = ({
           showAlert("Waitlist approved Successfully!", "success");
         }
       });
-    } else{
+    } else {
       showAlert("Error: " + response.statusText, "error");
       setOpenDialog(false);
     }
@@ -159,7 +157,7 @@ export const CourseComponent = ({
               onClick={() => {
                 selectTextbook(
                   course.textbooks?.textbook_id as number,
-                  course.course_id
+                  course.course_id,
                 );
               }}
               sx={{ cursor: "pointer" }}

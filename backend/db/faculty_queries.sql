@@ -16,7 +16,6 @@ DELIMITER ;
 
 DROP TRIGGER IF EXISTS after_enroll_insert;
 DELIMITER //
-
 CREATE TRIGGER after_enroll_insert
 AFTER INSERT ON ENROLL
 FOR EACH ROW
@@ -29,33 +28,24 @@ BEGIN
     INTO enrolled_count 
     FROM ENROLL
     WHERE Course_ID = NEW.Course_ID;
-    
-    
 
     -- Get the capacity of the course
-    SELECT Course_Capacity 
+    SELECT AC.Course_Capacity
     INTO course_capacity
     FROM Active_Course AC
     WHERE AC.Course_ID = NEW.Course_ID;
-    
-    
 
     -- Check if the capacity is reached
     IF enrolled_count >= course_capacity THEN
         -- Call procedure to notify students on the waitlist and remove them
-        
         CALL send_course_full_notification(NEW.Course_ID);
-        
         DELETE FROM Waitlist WHERE Course_ID = NEW.Course_ID;
-        
-        
     END IF;
-END; //
+END //
 DELIMITER ;
 
 DROP PROCEDURE IF EXISTS send_course_full_notification;
 DELIMITER //
-
 CREATE PROCEDURE send_course_full_notification(IN course_id VARCHAR(255))
 BEGIN
     DECLARE done INT DEFAULT FALSE;
